@@ -35,6 +35,26 @@ Treinei um classificador nos 47.837 tickets reais do Dataset 2. Ele acerta **86,
 
 Ler assim: a 0,80, seis em cada dez tickets são roteados sem tocar em ninguém, e **15 em mil** caem na fila errada. Os outros quatro em dez chegam ao humano já com uma sugestão de categoria e o grau de confiança — ele não parte do zero.
 
+### 1.1.1 Por que TF-IDF e não embeddings ou zero-shot
+
+O ponto de partida óbvio seria "usar embeddings" ou "zero-shot classification" — são as palavras que aparecem em qualquer tutorial de NLP moderno. Testei as duas opções no **mesmo conjunto de teste** do TF-IDF, para uma comparação justa, em vez de assumir que a técnica mais nova ganharia:
+
+| Método | Acurácia | F1 macro | N testado | Custo |
+|---|---|---|---|---|
+| **TF-IDF + LogisticRegression (adotado)** | **86,40%** | **0,8653** | 11.960 | nenhum — CPU, sem download |
+| Embeddings (MiniLM) + LogisticRegression | 78,07% | 0,7777 | 11.960 | download ~80MB; ~170s de encoding em CPU |
+| Zero-shot (BART-MNLI, sem treino) | **23,75%** | 0,1325 | 240 (amostra) | download ~1,6GB; ~1,7s/ticket em CPU |
+
+**O TF-IDF venceu de forma decisiva, e o zero-shot ficou abaixo até do baseline ingênuo** (28,47% de acerto só chutando a classe majoritária). Script completo em `solution/scripts/04_embeddings_zeroshot.py`.
+
+**Por que isso acontece — não é acaso, é o formato do dado:** o Dataset 2 já vem pré-processado pelo autor original — lematizado e sem stopwords. Um ticket real neste dataset é:
+
+> *"work experience user work experience user hi work experience student coming next his name much appreciate him duration thank"*
+
+Isso é ótimo para TF-IDF, que só precisa contar termos e ganha com a repetição. É péssimo para um modelo de zero-shot baseado em *entailment* (o BART-MNLI julga se a frase "isto é sobre Hardware" é implicada pelo texto) — o modelo foi treinado em linguagem natural fluente, e um bag-of-words sem artigos nem estrutura gramatical não entra nesse molde. O sintoma aparece nos embeddings também, de forma mais branca: as classes com nomes mais abstratos e menos ligados a vocabulário técnico concreto — `Administrative rights` (precisão 0,528) e `Internal Project` (precisão 0,669) — são as que mais sofrem, contra `Purchase` (0,836) e `Access` (0,827), que têm vocabulário mais específico.
+
+**A decisão de manter TF-IDF não é conservadorismo — é o resultado do teste.** Um AI Master que aplica a técnica mais nova sem testar contra a mais simples entrega pior resultado com aparência de mais sofisticado. Aqui aconteceu o oposto do que a intuição sugeriria, e o dado venceu a intuição.
+
 ### 1.2 Sugestão de categoria para o agente — **automatizar como apoio**
 
 Nos 40% que vão para revisão humana, o modelo não fica calado: entrega sua melhor hipótese, as três alternativas seguintes e **os termos que pesaram na decisão**. Exemplo real de saída do protótipo, para um chamado de caixa postal cheia:

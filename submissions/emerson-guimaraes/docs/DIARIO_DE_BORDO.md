@@ -116,7 +116,7 @@ Pedi uma avaliação honesta do case contra os critérios de qualidade do brief,
 
 **O que não mudei:** a estrutura da resposta ao item 1 (onde o fluxo trava / o que impacta satisfação) continua sendo "não há resposta verdadeira, e aqui está o teste que prova". A revisão concordou que isso fortalece a recomendação por fases em vez de invalidá-la — o ponto de atenção era de transparência de premissa, não de metodologia.
 
-**Pendências que a revisão confirmou e que continuam em aberto:** screenshots/Loom do workflow (só o usuário pode capturar) e testar um classificador com embeddings para tentar aproximar o benchmark de 92% que o próprio brief cita como exemplo — fica como melhoria de tempo extra, não bloqueante.
+**Pendências que a revisão confirmou:** screenshots/Loom do workflow (capturado e organizado na Etapa 12) e testar embeddings/zero-shot contra o benchmark de 92% que o brief cita (resolvido na Etapa 13 — TF-IDF venceu ambos, com explicação).
 
 ---
 
@@ -128,9 +128,31 @@ O usuário capturou 15 screenshots da sessão real (clone → escolha do desafio
 
 **Correção:** redigi (cobri com retângulo preto) apenas a região do token nas duas imagens, preservando o resto do conteúdo — que é justamente onde aparecem as primeiras 5 provas do Faker, material valioso do process log. Conferi visualmente as duas redações antes de aceitar.
 
-**O que não fiz:** não afirmei no README que o token "já foi revogado" — eu não tenho como verificar isso. Errei essa frase duas vezes tentando adivinhar o tempo verbal certo antes de perceber que o correto era não afirmar um fato que não posso confirmar, e sim recomendar a ação ao usuário. A nota final no process log ficou como recomendação, não como declaração.
+**O que não fiz:** não afirmei no README que o token "já foi revogado" — eu não tinha como verificar isso no momento. Errei essa frase duas vezes tentando adivinhar o tempo verbal certo antes de perceber que o correto era não afirmar um fato que não podia confirmar, e sim recomendar a ação ao usuário. A nota ficou como recomendação até o usuário confirmar que já havia expirado o token — só então a nota do process log foi atualizada para declarar o fato.
 
 Arquivos renomeados de `1.png`...`15.png` para nomes descritivos (`05-descoberta-dataset1-sintetico-5-provas.png` etc.) e indexados em `process-log/README.md` com uma linha por captura.
+
+---
+
+### Etapa 13 — Fechando o gap de embeddings/zero-shot, e um resultado que surpreendeu
+
+O revisor apontou que a entrega ficava abaixo do benchmark de "92% com embeddings + zero-shot" que o próprio brief cita como exemplo. Antes de implementar, checei o ambiente: CPU only, sem GPU, sem `ANTHROPIC_API_KEY`/`OPENAI_API_KEY` configuradas. Apresentei 4 opções ao usuário (embeddings locais, zero-shot local, zero-shot via API paga, ou não mexer) — escolhida a combinação embeddings locais + zero-shot local numa amostra de validação, mantendo tudo reproduzível sem custo de API.
+
+**Percalço 1 — bug de compatibilidade do pandas 3.x.** `groupby("rotulo").apply(lambda g: g.sample(...))` quebrou com `KeyError: 'rotulo'`. A causa: pandas 3.x passou a excluir por padrão a própria coluna de agrupamento do que é entregue à função (`include_groups`), então a amostra resultante simplesmente não tinha mais essa coluna. Troquei por concatenação manual (`pd.concat([g.sample(...) for _, g in df.groupby(...)])`), que não sofre desse efeito colateral.
+
+**Percalço 2 — tempo de execução subestimado.** O zero-shot local roda 8 hipóteses de entailment por ticket em CPU (~1,7s/ticket) — rodar isso passou dos 10 minutos do timeout padrão da ferramenta duas vezes (uma antes do bug, outra depois de corrigi-lo) e caiu para execução em background nas duas. Nada de errado, só é um processo genuinamente longo em CPU sem GPU.
+
+**O resultado surpreendeu, e é o tipo de achado que só aparece testando de verdade:**
+
+| Método | Acurácia | F1 macro |
+|---|---|---|
+| TF-IDF + LogReg (o que já estava em produção na submissão) | 86,40% | 0,8653 |
+| Embeddings (MiniLM) + LogReg | 78,07% | 0,7777 |
+| Zero-shot (BART-MNLI, sem treino) | **23,75%** | 0,1325 |
+
+O zero-shot ficou **abaixo do baseline ingênuo** de 28,47% (sempre a classe majoritária). Investiguei a causa em vez de só reportar o número: o Dataset 2 vem pré-lematizado e sem stopwords pelo autor original (`"work experience user work experience user hi..."`), formato que favorece contagem de termos (TF-IDF) e é veneno para um modelo de entailment que precisa de frases fluentes para julgar "isto implica aquilo". Confirmei isso lendo amostras reais do texto antes de escrever a explicação — não assumi a causa, verifiquei.
+
+**Por que isto fecha o gap melhor do que simplesmente "ter testado embeddings":** a resposta ao brief não é "usamos embeddings e deu X%" — é "testamos as três abordagens que o brief sugere, escolhemos a que os dados comprovaram ser melhor, e sabemos explicar por quê". É exatamente o oposto de aplicar a técnica mais nova por reflexo.
 
 ---
 

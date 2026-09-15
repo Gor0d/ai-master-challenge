@@ -1,0 +1,95 @@
+{
+  "objetivo": "Testar se embeddings e zero-shot superam o baseline TF-IDF + LogisticRegression ja reportado, no mesmo split de teste.",
+  "embeddings": {
+    "modelo": "sentence-transformers/all-MiniLM-L6-v2 (384 dim) + LogisticRegression",
+    "n_treino": 35877,
+    "n_teste": 11960,
+    "tempo_carga_modelo_s": 5.7,
+    "tempo_encoding_s": 1258.5,
+    "tempo_treino_classificador_s": 92.81,
+    "acuracia_pct": 78.07,
+    "f1_macro": 0.7777,
+    "f1_ponderado": 0.7815,
+    "desempenho_por_classe": {
+      "Access": {
+        "precision": 0.8269,
+        "recall": 0.8501,
+        "f1-score": 0.8383,
+        "support": 1781.0
+      },
+      "Administrative rights": {
+        "precision": 0.5279,
+        "recall": 0.8159,
+        "f1-score": 0.6411,
+        "support": 440.0
+      },
+      "HR Support": {
+        "precision": 0.8335,
+        "recall": 0.7739,
+        "f1-score": 0.8026,
+        "support": 2729.0
+      },
+      "Hardware": {
+        "precision": 0.845,
+        "recall": 0.6819,
+        "f1-score": 0.7548,
+        "support": 3405.0
+      },
+      "Internal Project": {
+        "precision": 0.6695,
+        "recall": 0.8981,
+        "f1-score": 0.7671,
+        "support": 530.0
+      },
+      "Miscellaneous": {
+        "precision": 0.7085,
+        "recall": 0.7796,
+        "f1-score": 0.7424,
+        "support": 1765.0
+      },
+      "Purchase": {
+        "precision": 0.8363,
+        "recall": 0.9205,
+        "f1-score": 0.8764,
+        "support": 616.0
+      },
+      "Storage": {
+        "precision": 0.7309,
+        "recall": 0.8804,
+        "f1-score": 0.7987,
+        "support": 694.0
+      }
+    }
+  },
+  "zero_shot": {
+    "modelo": "facebook/bart-large-mnli (zero-shot, sem treino)",
+    "n_amostra": 240,
+    "amostra_do_conjunto_de_teste": true,
+    "tempo_carga_modelo_s": 2.8,
+    "tempo_inferencia_total_s": 401.9,
+    "tempo_medio_por_ticket_s": 1.674,
+    "acuracia_pct": 23.75,
+    "f1_macro": 0.1325,
+    "nota_metodologica": "Amostra estratificada de 240 tickets do MESMO conjunto de teste usado pelo TF-IDF e pelos embeddings - nao e o teste inteiro (11.960 tickets) por custo computacional: MNLI avalia 8 hipoteses de entailment por ticket em CPU, ~1.67s/ticket. Comparacao valida estatisticamente, mas com intervalo de confianca maior que os outros dois metodos."
+  },
+  "comparacao_resumida": {
+    "tfidf_logreg": {
+      "acuracia_pct": 86.4,
+      "f1_macro": 0.8653,
+      "n_teste": 11960,
+      "custo": "nenhum - CPU, sem download de modelo"
+    },
+    "embeddings_minilm_logreg": {
+      "acuracia_pct": 78.07,
+      "f1_macro": 0.7777,
+      "n_teste": 11960,
+      "custo": "download ~80MB; 1258.5s de encoding em CPU"
+    },
+    "zero_shot_bart_mnli": {
+      "acuracia_pct": 23.75,
+      "f1_macro": 0.1325,
+      "n_teste": 240,
+      "custo": "download ~1.6GB; 1.674s/ticket em CPU, sem treino"
+    }
+  }
+}

@@ -33,7 +33,7 @@ Capturas em sequência da sessão real de trabalho com o Claude Code — prompt,
 | 14 | `14-tentativa-weasyprint-e-pivot-edge-headless.png` | WeasyPrint falha no Windows; pivô para Edge headless |
 | 15 | `15-auditoria-final-e-checklist-de-submissao.png` | Auditoria de qualidade final e checklist de submissão |
 
-**Nota de segurança:** as capturas 4 e 5 continham originalmente um token da API do Kaggle colado em texto puro durante a configuração do ambiente. A região foi redigida (coberta) antes da publicação — o restante do conteúdo de ambas as imagens não foi alterado. Por ter circulado em texto puro, esse token deve ser tratado como comprometido e revogado em kaggle.com/settings, independentemente da redação da imagem.
+**Nota de segurança:** as capturas 4 e 5 continham originalmente um token da API do Kaggle colado em texto puro durante a configuração do ambiente, no momento em que o candidato demonstrava o passo de autenticação. A região foi redigida (coberta) antes da publicação — o restante do conteúdo de ambas as imagens não foi alterado. O token já foi expirado em kaggle.com/settings e não concede mais acesso a nada; a redação é uma camada de cuidado adicional, não uma correção de um acesso ainda ativo.
 
 ## Os três erros corrigidos durante o trabalho
 

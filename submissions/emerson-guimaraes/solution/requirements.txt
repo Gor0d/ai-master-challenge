@@ -7,3 +7,9 @@ streamlit>=1.30
 
 # Apenas para regenerar o PDF consolidado (relatorio/build_pdf.py) - opcional
 markdown>=3.5
+
+# Apenas para o experimento comparativo (scripts/04_embeddings_zeroshot.py) -
+# opcional, nao e dependencia do classificador principal (script 03)
+sentence-transformers>=3.0
+transformers>=4.40
+torch>=2.0

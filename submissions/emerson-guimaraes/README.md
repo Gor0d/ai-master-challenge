@@ -52,6 +52,7 @@ Ataquei o problema em quatro movimentos, nesta ordem deliberada:
 | Não há gargalo identificável | ANOVA por canal p=0,451 · prioridade p=0,569 · tipo p=0,911 |
 | Nada explica a satisfação | R² de teste = **−0,0525** (pior que chutar a média) |
 | Classificador funciona | **86,40%** de acurácia vs 28,47% do baseline (+57,93 p.p.), F1 macro 0,865 |
+| TF-IDF venceu embeddings e zero-shot, testado | 86,40% vs. 78,07% (embeddings) vs. **23,75%** (zero-shot, abaixo do baseline) — mesmo split de teste |
 | Automação viável e medida | limiar 0,80 → **60,11%** de cobertura a **97,48%** de acurácia |
 | Ganho financeiro | **R$ 50.009/ano** líquidos (0,57 FTE) — projeção p/ 30 mil tickets; R$ 14.118 sobre os 8.469 tickets reais entregues |
 | Payback do investimento | ≈ **3,4 meses** (integração estimada em R$ 12.000; fase de sombra custa R$ 0) |
@@ -73,7 +74,7 @@ Por ordem de prioridade:
 - A **taxonomia de 8 categorias veio do dataset**, não de uma operação real. Se as filas forem outras, é preciso retreinar com os rótulos certos.
 - Os **rótulos de treino têm ruído**; os 86,4% provavelmente subestimam o desempenho com taxonomia limpa.
 - O **ROI depende de premissas de tempo por tarefa** (4 min de triagem, 12 min de retrabalho). São benchmarks, não medições da operação. Todas editáveis no protótipo.
-- **Não testei transformers/LLM** contra o baseline TF-IDF. Com o texto já pré-processado e lematizado, o ganho esperado seria pequeno e o custo por chamada, permanente — mas é uma verificação que ficou em aberto.
+- **Testei transformers/embeddings/zero-shot contra o TF-IDF, no mesmo split de teste** (`solution/scripts/04_embeddings_zeroshot.py`) — e o TF-IDF venceu de forma decisiva (86,40% vs. 78,07% dos embeddings vs. 23,75% do zero-shot, este último abaixo até do baseline de 28,47%). A causa está identificada: o texto do Dataset 2 é pré-lematizado e sem stopwords, formato que favorece contagem de termos e prejudica modelos que dependem de linguagem natural fluente (entailment). Detalhe completo na [Proposta de Automação](solution/relatorio/02_proposta_automacao.md#111-por-que-tf-idf-e-não-embeddings-ou-zero-shot).
 
 ---
 
@@ -164,7 +165,8 @@ submissions/emerson-guimaraes/
 │   ├── scripts/
 │   │   ├── 01_auditoria_integridade.py     9 testes de integridade
 │   │   ├── 02_diagnostico_operacional.py   item 1 do brief
-│   │   └── 03_classificador.py             treino + curva de cobertura
+│   │   ├── 03_classificador.py             treino + curva de cobertura
+│   │   └── 04_embeddings_zeroshot.py       TF-IDF vs. embeddings vs. zero-shot (opcional)
 │   ├── app/app.py                          protótipo Streamlit
 │   ├── outputs/                            JSONs + modelo treinado
 │   ├── relatorio/

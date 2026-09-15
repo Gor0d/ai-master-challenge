@@ -52,6 +52,11 @@ cd submissions/emerson-guimaraes/solution
 python scripts/01_auditoria_integridade.py     # 9 testes de integridade
 python scripts/03_classificador.py             # treina o modelo (~1 min)
 python scripts/02_diagnostico_operacional.py   # diagnóstico + ROI
+
+# Opcional - compara TF-IDF com embeddings e zero-shot (~10 min em CPU,
+# baixa ~1,7GB de modelos na primeira execução; requer as dependências
+# extras do requirements.txt)
+python scripts/04_embeddings_zeroshot.py
 ```
 
 Saídas em `solution/outputs/`:
@@ -62,6 +67,7 @@ Saídas em `solution/outputs/`:
 | `classificador_metricas.json` | Acurácia, F1 por classe, matriz de confusão, curva de cobertura |
 | `diagnostico_operacional.json` | Gargalos, drivers de CSAT e cenários de ROI |
 | `modelo_triagem.joblib` | Modelo treinado, usado pelo protótipo |
+| `embeddings_zeroshot_metricas.json` | Comparação TF-IDF vs. embeddings vs. zero-shot (opcional) |
 
 ## 4. Rodar o protótipo
 
