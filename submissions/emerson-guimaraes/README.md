@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-Auditei os dois datasets antes de analisar qualquer coisa, e descobri que o **Dataset 1 foi inteiramente gerado por biblioteca de dados falsos** — 8 de 9 testes estatísticos o condenam, incluindo 100% dos e-mails em domínios reservados da RFC 2606 e um campo de "resolução do agente" que é salada de palavras. Isso significa que duas das três perguntas do diagnóstico (gargalos e drivers de satisfação) **não têm resposta verdadeira** nos dados fornecidos, e eu reporto isso com os testes que provam, em vez de inventar números. A terceira pergunta tem resposta e vale dinheiro: **R$ 90.000/ano gastos em triagem manual**. Construí então um classificador sobre os 47.837 tickets **reais** do Dataset 2 que atinge **86,4% de acurácia** e, calibrado a um limiar de confiança de 0,80, **roteia sozinho 60,11% dos tickets com 97,48% de acerto** — recuperando **R$ 50.009/ano (0,57 FTE)**, já descontado o retrabalho dos próprios erros. A recomendação principal é implantar a triagem automática em fases, mantendo decisões de privilégio e de gasto obrigatoriamente com humanos.
+Auditei os dois datasets antes de analisar qualquer coisa, e descobri que o **Dataset 1 foi inteiramente gerado por biblioteca de dados falsos** — 8 de 9 testes estatísticos o condenam, incluindo 100% dos e-mails em domínios reservados da RFC 2606 e um campo de "resolução do agente" que é salada de palavras. Isso significa que duas das três perguntas do diagnóstico (gargalos e drivers de satisfação) **não têm resposta verdadeira** nos dados fornecidos, e eu reporto isso com os testes que provam, em vez de inventar números. A terceira pergunta tem resposta e vale dinheiro: **R$ 90.000/ano gastos em triagem manual** (projeção para os 30 mil tickets/ano citados no brief; R$ 25.407/ano sobre os 8.469 tickets efetivamente entregues). Construí então um classificador sobre os 47.837 tickets **reais** do Dataset 2 que atinge **86,4% de acurácia** e, calibrado a um limiar de confiança de 0,80, **roteia sozinho 60,11% dos tickets com 97,48% de acerto** — recuperando **R$ 50.009/ano (0,57 FTE)**, já descontado o retrabalho dos próprios erros, com **payback estimado em ~3,4 meses**. A economia é sensível à premissa de custo/hora do agente (varia de R$ 33 mil a R$ 66 mil entre R$ 30/h e R$ 60/h) — a calculadora do protótipo recalcula com o número real da operação. A recomendação principal é implantar a triagem automática em fases, começando por uma fase de sombra sem custo de integração, mantendo decisões de privilégio e de gasto obrigatoriamente com humanos.
 
 ---
 
@@ -53,7 +53,9 @@ Ataquei o problema em quatro movimentos, nesta ordem deliberada:
 | Nada explica a satisfação | R² de teste = **−0,0525** (pior que chutar a média) |
 | Classificador funciona | **86,40%** de acurácia vs 28,47% do baseline (+57,93 p.p.), F1 macro 0,865 |
 | Automação viável e medida | limiar 0,80 → **60,11%** de cobertura a **97,48%** de acurácia |
-| Ganho financeiro | **R$ 50.009/ano** líquidos (0,57 FTE) em 30 mil tickets |
+| Ganho financeiro | **R$ 50.009/ano** líquidos (0,57 FTE) — projeção p/ 30 mil tickets; R$ 14.118 sobre os 8.469 tickets reais entregues |
+| Payback do investimento | ≈ **3,4 meses** (integração estimada em R$ 12.000; fase de sombra custa R$ 0) |
+| Sensibilidade ao custo/hora | economia recomendada varia de **R$ 33.339** (R$ 30/h) a **R$ 66.679** (R$ 60/h) — R$ 45/h é benchmark, não a folha real da operação |
 
 ### Recomendações
 

@@ -81,11 +81,18 @@ Esta pergunta **tem** resposta, porque não depende dos campos corrompidos. Depe
 | Retrabalho por roteamento errado | 12,0 min | reclassificar, transferir, recontextualizar |
 | Jornada | 168 h/mês | — |
 
-### O custo atual
+### O custo atual — números real e projetado, sem misturar
 
-Para **30.000 tickets/ano** (volume citado no brief):
+Duas escalas diferentes aparecem neste relatório, e é importante não confundi-las:
 
-> **2.000 horas/ano apenas em triagem manual = R$ 90.000/ano**
+| Escala | Volume | Custo de triagem manual/ano | Economia recomendada/ano |
+|---|---|---|---|
+| **Real** (o Dataset 1 entregue) | 8.469 tickets | R$ 25.407 | R$ 14.118 |
+| **Projetada** (volume citado no brief) | 30.000 tickets | R$ 90.000 | R$ 50.009 |
+
+Todo número de "R$ 50.009" ou "R$ 90.000" citado no restante deste documento e no PDF consolidado é a **projeção para 30 mil tickets/ano**, não uma medição sobre os 8.469 tickets efetivamente entregues. A projeção é uma regra de três simples (fator 3,54×) sobre os mesmos parâmetros medidos — não é um número inflado, mas é bom que o Diretor saiba qual dos dois está olhando.
+
+> **Projeção para 30.000 tickets/ano: 2.000 horas/ano apenas em triagem manual = R$ 90.000/ano**
 
 Isso é 1,0 FTE integral consumido por uma tarefa que não resolve nenhum chamado — apenas decide para onde ele vai.
 
@@ -93,11 +100,37 @@ Isso é 1,0 FTE integral consumido por uma tarefa que não resolve nenhum chamad
 
 A taxa de automação **não foi arbitrada**: vem da cobertura medida do classificador treinado nos 47.837 tickets reais do Dataset 2 (item 2). O ganho é líquido — desconta as horas de retrabalho geradas pelos próprios erros do modelo.
 
-| Cenário | Limiar | Cobertura medida | Acurácia | Horas líquidas/ano | Economia/ano | FTE |
+| Cenário | Limiar | Cobertura medida | Acurácia | Horas líquidas/ano (30k) | Economia/ano (30k) | FTE |
 |---|---|---|---|---|---|---|
 | Conservador | 0,90 | 47,51% | 98,77% | 915 | R$ 41.181 | 0,46 |
 | **Recomendado** | **0,80** | **60,11%** | **97,48%** | **1.111** | **R$ 50.009** | **0,57** |
 | Agressivo | 0,70 | 69,67% | 95,91% | 1.223 | R$ 55.009 | 0,60 |
+
+### Sensibilidade à premissa de custo/hora
+
+O custo/hora do agente (R$ 45,00) é **benchmark de mercado, não a folha real da operação** — e a economia escala linearmente com ele. Antes de aprovar qualquer investimento, substitua pelo número real:
+
+| Custo/hora | Economia recomendada/ano (30k tickets) |
+|---|---|
+| R$ 30,00 | R$ 33.339 |
+| **R$ 45,00 (premissa adotada)** | **R$ 50.009** |
+| R$ 60,00 | R$ 66.679 |
+
+A calculadora do protótipo (aba "Calculadora de ROI") recalcula isso ao vivo com o número real da sua operação.
+
+### Custo de implantação e payback
+
+Estimativa de esforço de engenharia — **não é orçamento medido de projeto real**, e deve ser ajustado ao custo de TI/dados da operação antes de qualquer aprovação:
+
+| Item | Estimativa |
+|---|---|
+| Fase de sombra (2–4 semanas) | **R$ 0** — roda em paralelo, sem integração em produção, é só inferência em lote sobre tickets que já existem |
+| Integração e deploy (piloto → produção) | R$ 12.000 (≈ 80h de engenharia) |
+| Manutenção e retreino mensal | R$ 600/mês (≈ 4h/mês) |
+
+No cenário recomendado (30k tickets/ano), a economia líquida após descontar a manutenção é de **R$ 3.567/mês**, o que dá um **payback de ≈ 3,4 meses** sobre o investimento de integração.
+
+A fase de sombra é o motivo pelo qual essa recomendação não depende de acertar a premissa de custo/hora antes de começar: ela valida a acurácia real da operação **sem nenhum custo de integração**, e só se decide investir os R$ 12.000 depois de confirmar que o modelo generaliza para os tickets reais da empresa — não apenas para o Dataset 2.
 
 ### Onde está o maior desperdício recuperável
 

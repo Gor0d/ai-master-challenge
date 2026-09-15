@@ -217,11 +217,19 @@ with aba2:
             sensivel = np.isin(previsto, list(SEMPRE_HUMANO))
             auto = (conf >= limiar) & ~sensivel
 
+            # motivo explicito da decisao: a regra de negocio fica visivel
+            # na tela, nao escondida na logica do codigo
+            motivo = np.where(
+                sensivel, "categoria sensivel (sempre humano)",
+                np.where(auto, "confianca suficiente",
+                        "confianca baixa (< limiar)"))
+
             tabela = pd.DataFrame({
                 "ticket": amostra["Document"].str.slice(0, 90) + "...",
                 "previsto": previsto,
                 "confianca": conf.round(3),
                 "decisao": np.where(auto, "AUTOMATICO", "HUMANO"),
+                "motivo": motivo,
                 "rotulo_real": amostra["Topic_group"],
                 "acertou": previsto == amostra["Topic_group"],
             })
@@ -232,6 +240,11 @@ with aba2:
             acc_auto = tabela.loc[auto, "acertou"].mean() if auto.any() else 0
             c3.metric("Acuracia no automatico", f"{acc_auto:.1%}")
             c4.metric("Para humano", int((~auto).sum()))
+            st.caption(
+                f"Dos {int((~auto).sum())} tickets para humano: "
+                f"{int(sensivel.sum())} por categoria sensível "
+                f"(Administrative rights/Purchase, qualquer confiança) e "
+                f"{int((~auto & ~sensivel).sum())} por confiança abaixo do limiar.")
 
             st.dataframe(tabela, use_container_width=True, height=420)
 

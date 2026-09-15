@@ -257,12 +257,79 @@ def desperdicio(d):
     }
 
 
+def sensibilidade_custo_hora(desp, valores=(30.0, 45.0, 60.0)):
+    """O ROI escala linearmente com a premissa de custo/hora do agente.
+
+    Isto NAO e uma medicao - e para deixar explicito o quanto a conclusao
+    depende de uma premissa que o Diretor deve substituir pelo numero real
+    da folha antes de decidir investimento.
+    """
+    base_valor = desp["premissas"]["custo_hora_agente_brl"]
+    linhas = {}
+    for v in valores:
+        fator = v / base_valor
+        linhas[f"R$ {v:.0f}/h"] = {
+            nome: round(c["economia_liquida_brl_ano"] * fator, 2)
+            for nome, c in desp["projecao_30k_tickets_ano"].items()
+        }
+    return {
+        "premissa_base_brl_hora": base_valor,
+        "economia_recomendada_por_valor_hora": linhas,
+        "nota": ("Escala linear: dobrar o custo/hora dobra a economia. Use "
+                 "o numero real da operacao, nao o benchmark, antes de "
+                 "decidir investimento."),
+    }
+
+
+def custo_implantacao_e_payback(desp):
+    """Estimativa de custo de implantar a triagem automatica e o tempo de
+    retorno, no cenario recomendado (limiar 0,80) projetado para 30k
+    tickets/ano.
+
+    Toda premissa de custo de implantacao aqui e ESTIMATIVA, marcada como
+    tal - nao e medicao de projeto real. A fase de sombra (rodar o modelo
+    em paralelo, sem rotear nada) custa perto de zero porque nao integra
+    nada em producao: e so inferencia em lote sobre tickets que ja existem.
+    """
+    custos = {
+        "fase_sombra_brl": 0.0,  # sem integracao, roda em paralelo, custo ~nulo
+        "integracao_e_deploy_brl": 12000.0,  # ~80h de engenharia a R$150/h
+        "retreino_mensal_recorrente_brl_mes": 600.0,  # ~4h/mes de manutencao
+    }
+    economia_recomendada = desp["projecao_30k_tickets_ano"]["recomendado"]
+    economia_mensal = economia_recomendada["economia_liquida_brl_ano"] / 12
+    economia_mensal_liquida_manutencao = (economia_mensal
+                                          - custos["retreino_mensal_recorrente_brl_mes"])
+    payback_meses = (custos["integracao_e_deploy_brl"]
+                     / economia_mensal_liquida_manutencao)
+    return {
+        "custos_estimados": custos,
+        "nota_metodologica": ("Estimativas de esforco de engenharia, nao "
+                              "orcamento medido. Ajustar ao custo real de "
+                              "TI/dados da operacao antes de aprovar."),
+        "economia_liquida_mensal_apos_manutencao_brl": round(
+            economia_mensal_liquida_manutencao, 2),
+        "payback_meses": round(payback_meses, 1),
+        "leitura": (
+            f"Com integracao estimada em R$ {custos['integracao_e_deploy_brl']:,.0f} "
+            f"e manutencao de R$ {custos['retreino_mensal_recorrente_brl_mes']:,.0f}/mes, "
+            f"o investimento se paga em ~{payback_meses:.1f} meses no cenario "
+            "recomendado. A fase de sombra (2-4 semanas) nao tem custo de "
+            "integracao, porque valida a acuracia antes de qualquer "
+            "investimento em deploy."
+        ).replace(",", "."),
+    }
+
+
 def main():
     d = carregar()
+    desp = desperdicio(d)
     resultado = {
         "a_onde_o_fluxo_trava": gargalos(d),
         "b_o_que_impacta_satisfacao": drivers_satisfacao(d),
-        "c_quanto_desperdicamos": desperdicio(d),
+        "c_quanto_desperdicamos": desp,
+        "d_sensibilidade_custo_hora": sensibilidade_custo_hora(desp),
+        "e_custo_implantacao_e_payback": custo_implantacao_e_payback(desp),
     }
     destino = SAIDA / "diagnostico_operacional.json"
     destino.write_text(json.dumps(resultado, indent=2, ensure_ascii=False,
@@ -317,6 +384,23 @@ def main():
             print(f"      {nome:13s} {v['horas_liquidas_ano']:>8.1f}h/ano | "
                   f"R$ {v['economia_liquida_brl_ano']:>12,.2f}/ano | "
                   f"{v['equivalente_fte']} FTE")
+
+    s = resultado["d_sensibilidade_custo_hora"]
+    print(f"\n[D] SENSIBILIDADE AO CUSTO/HORA "
+          f"(base: R$ {s['premissa_base_brl_hora']:.0f}/h)")
+    for valor_hora, cenarios in s["economia_recomendada_por_valor_hora"].items():
+        print(f"    {valor_hora:>10s} -> economia recomendada "
+              f"R$ {cenarios['recomendado']:>12,.2f}/ano")
+
+    pb = resultado["e_custo_implantacao_e_payback"]
+    print(f"\n[E] CUSTO DE IMPLANTACAO E PAYBACK")
+    print(f"    Integracao e deploy (estimativa): "
+          f"R$ {pb['custos_estimados']['integracao_e_deploy_brl']:,.2f}")
+    print(f"    Manutencao/retreino: "
+          f"R$ {pb['custos_estimados']['retreino_mensal_recorrente_brl_mes']:,.2f}/mes")
+    print(f"    Economia liquida apos manutencao: "
+          f"R$ {pb['economia_liquida_mensal_apos_manutencao_brl']:,.2f}/mes")
+    print(f"    Payback estimado: {pb['payback_meses']} meses")
 
     print("\n" + "=" * 78)
     print(f"JSON salvo em: {destino}")

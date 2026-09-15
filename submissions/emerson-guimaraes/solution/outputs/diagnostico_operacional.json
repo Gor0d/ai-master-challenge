@@ -233,5 +233,37 @@
       }
     },
     "nota_metodologica": "Volume (fato) x tempo por tarefa (premissa) x cobertura MEDIDA do classificador do script 03. Nao usa os campos de tempo do Dataset 1, que falharam na auditoria. O ganho e liquido: desconta o retrabalho gerado pelos proprios erros do modelo. Projecao para 30.000 tickets/ano usa fator 3.54."
+  },
+  "d_sensibilidade_custo_hora": {
+    "premissa_base_brl_hora": 45.0,
+    "economia_recomendada_por_valor_hora": {
+      "R$ 30/h": {
+        "conservador": 27454.13,
+        "recomendado": 33339.4,
+        "agressivo": 36672.9
+      },
+      "R$ 45/h": {
+        "conservador": 41181.19,
+        "recomendado": 50009.1,
+        "agressivo": 55009.35
+      },
+      "R$ 60/h": {
+        "conservador": 54908.25,
+        "recomendado": 66678.8,
+        "agressivo": 73345.8
+      }
+    },
+    "nota": "Escala linear: dobrar o custo/hora dobra a economia. Use o numero real da operacao, nao o benchmark, antes de decidir investimento."
+  },
+  "e_custo_implantacao_e_payback": {
+    "custos_estimados": {
+      "fase_sombra_brl": 0.0,
+      "integracao_e_deploy_brl": 12000.0,
+      "retreino_mensal_recorrente_brl_mes": 600.0
+    },
+    "nota_metodologica": "Estimativas de esforco de engenharia, nao orcamento medido. Ajustar ao custo real de TI/dados da operacao antes de aprovar.",
+    "economia_liquida_mensal_apos_manutencao_brl": 3567.43,
+    "payback_meses": 3.4,
+    "leitura": "Com integracao estimada em R$ 12.000 e manutencao de R$ 600/mes. o investimento se paga em ~3.4 meses no cenario recomendado. A fase de sombra (2-4 semanas) nao tem custo de integracao. porque valida a acuracia antes de qualquer investimento em deploy."
   }
 }

@@ -95,6 +95,16 @@ O brief menciona respostas sugeridas. Descartei, e o motivo é de dado, não de 
 
 Mesma razão. Prioridade no Dataset 1 é uniforme (χ²=4,59, p=0,205) — sorteada. Não há sinal de prioridade real para aprender. Automatizar priorização sem dado histórico verdadeiro é transformar palpite em regra, com aparência de sistema.
 
+### 2.6 Detecção de duplicatas — **não automatizável com os dados disponíveis**
+
+O brief cita detecção de duplicatas como exemplo de automação. Verifiquei diretamente: o Dataset 2 tem **zero duplicatas exatas de texto** entre os 47.837 tickets. Isso não significa que a operação não tenha tickets duplicados — significa que **os dados fornecidos não permitem detectá-los**, e a razão é estrutural, não de esforço:
+
+- **Nenhum ID de cliente** consistente entre tickets (o Dataset 2 nem tem esse campo; o Dataset 1 tem, mas não é o dataset de texto)
+- **Nenhum timestamp de abertura**, então não há como saber se dois tickets parecidos são o mesmo problema reaberto ou dois problemas legitimamente parecidos em datas diferentes
+- **O caso que de fato importa não é duplicata de texto** — é a **reabertura**: o mesmo cliente reportando o mesmo problema porque a primeira resolução não funcionou. Isso é o sinal de qualidade mais valioso para uma central de suporte, e nenhum dos dois datasets contém o vínculo necessário para calculá-lo.
+
+**O que seria necessário para construir isso:** ID de cliente, timestamp de abertura de cada ticket, e idealmente um campo de "ticket relacionado" preenchido pelo próprio agente. Com isso, similaridade de embeddings entre tickets do mesmo cliente em uma janela de N dias identificaria reaberturas automaticamente — e essa métrica também alimentaria o item B do diagnóstico (o que impacta satisfação), hoje sem resposta por falta exatamente desse tipo de campo.
+
 ---
 
 ## 3. Como funcionaria na prática

@@ -100,6 +100,26 @@ Pipeline validado do zero: apagados os outputs e reexecutados os três scripts n
 
 ---
 
+### Etapa 11 — Revisão crítica externa e correção de cinco pontos concretos
+
+Pedi uma avaliação honesta do case contra os critérios de qualidade do brief, e recebi de volta uma revisão com objeções específicas e verificáveis — o tipo de crítica que vale mais do que elogio. Cinco delas geraram mudança real:
+
+1. **Número real vs. projetado misturados sem aviso.** O relatório citava "R$ 50.009/ano" e "R$ 90.000/ano" como se fossem sobre o mesmo volume, quando são a projeção para 30 mil tickets/ano — sobre os 8.469 tickets efetivamente entregues, o número é R$ 14.118 e R$ 25.407. Corrigido com uma tabela explícita que separa as duas escalas antes de qualquer outro número aparecer.
+
+2. **Premissa de custo/hora apresentada como fato.** R$ 45/h é benchmark, não a folha real de ninguém, e o ROI escala linearmente com ela. Adicionei ao script (`sensibilidade_custo_hora()`) o cálculo em R$ 30/h e R$ 60/h — R$ 33.339 e R$ 66.679/ano — e uma tabela no relatório, não só uma frase.
+
+3. **Faltava custo de implantação e payback.** Adicionei `custo_implantacao_e_payback()` ao script: fase de sombra a custo zero (é inferência em lote, sem integração), deploy estimado em R$ 12.000, manutenção de R$ 600/mês, payback de **3,4 meses**. Marcado explicitamente como estimativa de esforço, não orçamento medido.
+
+4. **Detecção de duplicatas descartada só no diário, não na proposta.** O brief cita como exemplo de automação; quem lesse só o PDF podia achar que eu tinha ignorado o item. Movida a justificativa (zero duplicatas exatas no DS2, mas sem ID de cliente ou timestamp para detectar reaberturas — que é o caso que importa) para a seção 2 do relatório de automação, com o que seria necessário para resolver no futuro.
+
+5. **Regra de negócio escondida no código, no protótipo.** A aba de lote mostrava "HUMANO" sem dizer se foi por confiança baixa ou por categoria sensível. Adicionei coluna `motivo` na tabela e testei a consistência (`humano = sensível + confiança_baixa`) sobre uma amostra real de 400 tickets antes de aceitar.
+
+**O que não mudei:** a estrutura da resposta ao item 1 (onde o fluxo trava / o que impacta satisfação) continua sendo "não há resposta verdadeira, e aqui está o teste que prova". A revisão concordou que isso fortalece a recomendação por fases em vez de invalidá-la — o ponto de atenção era de transparência de premissa, não de metodologia.
+
+**Pendências que a revisão confirmou e que continuam em aberto:** screenshots/Loom do workflow (só o usuário pode capturar) e testar um classificador com embeddings para tentar aproximar o benchmark de 92% que o próprio brief cita como exemplo — fica como melhoria de tempo extra, não bloqueante.
+
+---
+
 ## Gaps e riscos em aberto
 
 | # | Item | Natureza | Status |
