@@ -2,7 +2,7 @@
 
 Registro corrido das decisões, becos sem saída e correções de rota. Escrito **durante** o trabalho, não reconstruído no fim — é a matéria-prima do process log.
 
-**Status atual:** Fase 1 concluída · Fases 2 a 5 pendentes
+**Status atual:** entrega completa — itens 1 a 4 do brief atendidos
 
 ---
 
@@ -43,7 +43,7 @@ Como a regra do `CONTRIBUTING.md` proíbe modificar arquivos fora da pasta da su
 
 Decisão metodológica tomada **antes** de qualquer análise: auditar a integridade dos dados antes de extrair qualquer conclusão. A hipótese inicial era suspeita moderada — o dataset tinha cara de sintético.
 
-O resultado foi muito além da suspeita. **8 dos 9 testes condenam o arquivo.** Detalhamento completo em [`solution/relatorio/01_laudo_auditoria.md`](../solution/relatorio/01_laudo_auditoria.md).
+O resultado foi muito além da suspeita. **8 dos 9 testes condenam o arquivo.** Detalhamento completo em [`solution/relatorio/03_anexo_auditoria_dados.md`](../solution/relatorio/03_anexo_auditoria_dados.md).
 
 As duas provas que encerram a discussão:
 
@@ -64,6 +64,40 @@ Os "67,3% nunca fechados" são 1/3 por status atribuído aleatoriamente. **Não 
 
 **Aprendizado:** ceticismo aplicado pela metade produz um erro mais perigoso do que ceticismo nenhum, porque vem com aparência de rigor. Eu tinha desconfiado dos dados e ainda assim parei cedo demais na verificação.
 
+### Etapa 5 — Correção de rota: a auditoria estava virando a entrega inteira
+
+Percebi (com o alerta certo) que estava gastando energia demais na auditoria e transformando-a no eixo da submissão. O brief pede quatro entregas concretas, e a auditoria é **fundamento** delas, não substituta.
+
+**Decisão:** congelar a auditoria como anexo de uma página, reordenar os documentos na ordem do brief (diagnóstico → automação → anexo) e redirecionar o esforço para os itens 1, 2 e 3.
+
+**Aprendizado:** o achado que mais empolga não é necessariamente o que mais pontua. Rigor que não vira entrega é auto-indulgência.
+
+### Etapa 6 — Diagnóstico entregue com os testes ao lado
+
+Item 1 construído para responder exatamente as três perguntas, cada número acompanhado do seu teste de significância. O resultado mais forte veio da pergunta B: **R² de teste = −0,0525**, ou seja, o modelo prevê satisfação pior do que chutar a média — com R² de 0,44 no treino, a assinatura clássica de decorar ruído.
+
+### Etapa 7 — Classificador e o cruzamento dos datasets
+
+TF-IDF + LogisticRegression balanceada sobre os 47.837 tickets reais: **86,4%** de acurácia contra 28,47% do baseline.
+
+A decisão de projeto que mais importou foi **não otimizar acurácia bruta, e sim a curva cobertura × acurácia**. Um modelo que acerta 86% é inútil para automação se não souber quando está inseguro. No limiar 0,80 ele cobre 60,11% dos tickets a 97,48% de acerto.
+
+Esse número medido substituiu os percentuais de automação que eu havia chutado (50/70/85%) no cálculo de ROI — é o cruzamento entre os dois datasets que o critério de qualidade cobra: cobertura medida no DS2 aplicada ao volume do DS1.
+
+Acrescentei o desconto de retrabalho ao ganho, e ele revelou algo que o cálculo ingênuo esconderia: **o cenário agressivo rende só R$ 5 mil a mais que o recomendado**, porque os erros adicionais consomem o ganho.
+
+### Etapa 8 — Percalço: meus próprios exemplos do protótipo estavam errados
+
+Escrevi quatro exemplos de ticket à mão para a demo. No teste, o exemplo que rotulei "Acesso" foi classificado como Storage com 99,9% de confiança.
+
+O modelo estava certo — meu texto dizia *shared folder*. **O erro era meu.**
+
+**Correção:** substituí todos por tickets reais sorteados do dataset, com o rótulo verdadeiro à vista. Exemplo escrito à mão contém as palavras que o autor acha que definem a classe, o que infla artificialmente a confiança — exatamente o cherry-picking que o critério de qualidade condena.
+
+### Etapa 9 — Fechamento
+
+Pipeline validado do zero: apagados os outputs e reexecutados os três scripts na ordem documentada. Números idênticos. O modelo de 8 MB ficou fora do versionamento (regenerável em ~1 min), com `.gitignore` local — dentro da minha pasta, sem violar a regra de não tocar em arquivos de terceiros.
+
 ---
 
 ## Gaps e riscos em aberto
@@ -73,10 +107,11 @@ Os "67,3% nunca fechados" são 1/3 por status atribuído aleatoriamente. **Não 
 | 1 | Brief promete ~30.000 registros no DS1; existem 8.469 | Divergência factual do enunciado | Documentado no laudo |
 | 2 | Brief promete "texto real"; é template + Faker | Divergência factual do enunciado | Documentado no laudo |
 | 3 | `submissions/` no `.gitignore` | Falha silenciosa de submissão | Contornado com `git add -f` |
-| 4 | DS2 tem rótulos ruidosos (ex.: pedido de acesso rotulado como "HR Support") | Teto de acurácia do classificador | **A quantificar na Fase 3** |
-| 5 | DS2 desbalanceado 7,74× | Risco de viés do modelo para classe majoritária | **A tratar na Fase 3** |
-| 6 | DS2 vem pré-processado (stopwords removidas, lematizado, PII mascarada) | Impede usar o texto cru; limita ganho de LLM sobre TF-IDF | **A avaliar na Fase 3** |
-| 7 | Sem dados temporais reais, não há cálculo honesto de horas desperdiçadas | Impacta o pedido de ROI do Diretor | **Mitigação: modelo paramétrico na Fase 4** |
+| 4 | DS2 tem rótulos ruidosos (ex.: pedido de acesso rotulado como "HR Support") | Teto de acurácia do classificador | Quantificado: confusões Hardware↔Misc↔HR somam ~5% por classe. Tratado como limite de taxonomia, não de modelo |
+| 5 | DS2 desbalanceado 7,74× | Risco de viés para a classe majoritária | Resolvido com `class_weight="balanced"`; F1 macro 0,865 e nenhuma classe com recall < 70% |
+| 6 | DS2 vem pré-processado (lematizado, sem stopwords, PII mascarada) | Limita o ganho de LLM sobre TF-IDF | **Em aberto** — não testei transformer contra o baseline. Ganho esperado pequeno, custo por chamada permanente |
+| 7 | Sem dados temporais reais, não há cálculo honesto de horas desperdiçadas | Impacta o pedido de ROI | Mitigado: ROI por volume (fato) × tempo/tarefa (premissa explícita) × cobertura medida. Todas as premissas editáveis no protótipo |
+| 8 | Modelo treinado em TI corporativo em inglês | Acurácia cai em outro domínio/idioma | **Em aberto** — mitigação proposta: fase de sombra antes de rotear |
 
 ### Risco principal da estratégia
 
@@ -86,9 +121,12 @@ Denunciar o dataset é a maior aposta desta submissão. Se o avaliador esperar o
 
 ---
 
-## Próximas etapas
+## O que ficou de fora, e por quê
 
-- **Fase 2** — Diagnóstico sobre o que é real: análise do DS2 e estrutura de custo parametrizada
-- **Fase 3** — Classificador sobre os 47.837 tickets reais, com acurácia medida e matriz de confusão por classe
-- **Fase 4** — Desenho do fluxo: o que automatizar, o que não automatizar, e onde fica a fronteira
-- **Fase 5** — Protótipo funcional + finalização do process log
+- **Transformer/LLM como classificador.** Com o texto já lematizado e sem stopwords, o ganho sobre TF-IDF tende a ser pequeno, e o custo por chamada é permanente. Deveria ser testado antes de uma decisão definitiva de arquitetura — não foi, e está declarado nas limitações.
+- **Detecção de duplicatas.** O brief cita como possibilidade. O DS2 tem zero duplicatas exatas, e sem ID de cliente ou timestamp não dá para detectar reaberturas — que é o caso que realmente importa.
+- **Respostas sugeridas.** Descartado por falta de base: o único campo de resolução disponível é texto gerado por Faker.
+
+## Evidência que depende do candidato
+
+Screenshots e screen recording do workflow ainda não foram capturados. O git history, o código reproduzível e este diário cobrem a narrativa, mas o guia de submissão valoriza evidência visual — vale acrescentar antes de abrir o PR.

@@ -1,0 +1,7 @@
+# Modelo treinado: 8 MB, regenerado em ~1 min por scripts/03_classificador.py.
+# Binario desse tamanho nao pertence a um pull request.
+solution/outputs/*.joblib
+
+__pycache__/
+*.pyc
+.streamlit/
