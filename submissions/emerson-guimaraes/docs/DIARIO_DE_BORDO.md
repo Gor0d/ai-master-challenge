@@ -156,6 +156,20 @@ O zero-shot ficou **abaixo do baseline ingênuo** de 28,47% (sempre a classe maj
 
 ---
 
+### Etapa 14 — Ajustes finais, fork, e um artifact como resumo visual
+
+Três correções pontuais pedidas pelo usuário, após aprovação dos testes de estresse do protótipo:
+
+- **Emoji removido.** O único emoji do projeto (🎫, no `app.py`) foi trocado por um ícone Material Symbols (`:material/inbox:`) — vetorial, não emoji. Varredura em todo `.py`/`.md` confirmou que não havia mais nenhum.
+- **Acentuação inconsistente corrigida.** Três linhas do `app.py` usavam acentos (`sensível`, `confiança`) quebrando a convenção sem-acento do resto do arquivo (deliberada, por segurança de encoding em terminal). Padronizado, e duas legendas sem ponto final foram alinhadas ao padrão das demais.
+- **Bug do `groupby().apply()` confirmado como não existente no código entregue** — só havia aparecido num script descartável usado para gerar exemplos de teste para o usuário, já corrigido ali com a mesma técnica aplicada no script 04 (concatenação manual em vez de `apply`).
+
+**Fork e push para o repositório oficial.** Criado `Gor0d/ai-master-challenge` via `gh repo fork`, e enviada a branch `submission/emerson-guimaraes` com o nome exato pedido pelo `CONTRIBUTING.md`. Isso não torna nada público para o G4 — só a abertura do PR de fato notifica o repositório oficial, e essa etapa ficou para confirmação explícita do usuário antes de executar.
+
+**Artifact como resumo visual do processo.** A pedido do usuário, publicada uma página ("Case File 002") sintetizando os 9 marcos reais da sessão em formato de dossiê/timeline, com um gráfico comparando TF-IDF/embeddings/zero-shot. Deixei explícito na própria página que ela complementa, não substitui, o diário e os 15 screenshots — para não criar a impressão de que o resumo visual é o process log completo. O usuário compartilhou o link publicamente antes de eu referenciá-lo no README.
+
+---
+
 ## Gaps e riscos em aberto
 
 | # | Item | Natureza | Status |

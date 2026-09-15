@@ -147,11 +147,12 @@ Aproximadamente 20 ciclos de trabalho, com 4 commits temáticos. A auditoria soz
 
 ## Evidências
 
-- [x] **Git history** — 6+ commits temáticos com a evolução do raciocínio nas mensagens, incluindo o commit que registra a retratação
+- [x] **Git history** — 9 commits temáticos com a evolução do raciocínio nas mensagens, incluindo o commit que registra a retratação
 - [x] **Narrativa escrita** — [Diário de Bordo](docs/DIARIO_DE_BORDO.md), escrito durante o trabalho e não reconstruído no fim
 - [x] **Código reproduzível** — todos os números desta submissão saem de `solution/scripts/`, executáveis de ponta a ponta
 - [x] **Saídas brutas versionadas** — JSONs em `solution/outputs/` para conferência independente
 - [x] **Screenshots das conversas com IA** — 15 capturas cronológicas em [`process-log/screenshots/`](process-log/screenshots/), do clone do repositório ao checklist final. Duas delas tiveram um token de API redigido antes da publicação (ver nota no índice do process log)
+- [x] **Resumo visual do processo** — [Case File 002](https://claude.ai/artifact/UEutxhGMDpEbQpWEB8xVBZ), uma página com a linha do tempo dos 9 marcos reais da sessão, incluindo a retratação e o teste de embeddings/zero-shot. Complementa o diário e os screenshots — não os substitui
 - [ ] Screen recording do workflow
 
 ---
