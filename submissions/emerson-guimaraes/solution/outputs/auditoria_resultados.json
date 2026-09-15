@@ -79,6 +79,106 @@
         "veredito": "SINTETICO"
       },
       {
+        "nome": "Dominios de e-mail reservados (assinatura do Faker)",
+        "distribuicao_dominios": {
+          "example.com": 2904,
+          "example.org": 2796,
+          "example.net": 2769
+        },
+        "pct_dominios_reservados_rfc2606": 100.0,
+        "esperado_se_real": "dominios variados de provedores reais",
+        "veredito": "SINTETICO"
+      },
+      {
+        "nome": "Vocabulario do campo Resolution",
+        "n_resolucoes": 2769,
+        "palavras_unicas": 971,
+        "top_10_palavras": {
+          "evidence": 30,
+          "piece": 29,
+          "as": 27,
+          "because": 26,
+          "bit": 25,
+          "available": 25,
+          "billion": 25,
+          "time": 25,
+          "leg": 25,
+          "common": 25
+        },
+        "ocorrencias_termos_de_suporte": {
+          "refund": 0,
+          "replace": 0,
+          "ticket": 0,
+          "resolved": 0,
+          "reset": 0,
+          "support": 16,
+          "customer": 17,
+          "issue": 21,
+          "account": 11
+        },
+        "termos_com_zero_ocorrencias": [
+          "refund",
+          "replace",
+          "ticket",
+          "resolved",
+          "reset"
+        ],
+        "amostras": [
+          "Case maybe show recently my computer follow.",
+          "Try capital clearly never color toward story.",
+          "West decision evidence bit."
+        ],
+        "esperado_se_real": "vocabulario dominado por termos de atendimento",
+        "veredito": "SINTETICO"
+      },
+      {
+        "nome": "Uniformidade de TODAS as categoricas (chi2 vs uniforme)",
+        "alfa_bonferroni": 0.00833,
+        "resultados": {
+          "Ticket Channel": {
+            "k_categorias": 4,
+            "chi2": 1.35,
+            "p": 0.7179,
+            "uniforme": true
+          },
+          "Ticket Priority": {
+            "k_categorias": 4,
+            "chi2": 4.59,
+            "p": 0.2048,
+            "uniforme": true
+          },
+          "Ticket Type": {
+            "k_categorias": 5,
+            "chi2": 7.43,
+            "p": 0.1149,
+            "uniforme": true
+          },
+          "Ticket Status": {
+            "k_categorias": 3,
+            "chi2": 2.23,
+            "p": 0.3279,
+            "uniforme": true
+          },
+          "Product Purchased": {
+            "k_categorias": 42,
+            "chi2": 40.82,
+            "p": 0.4784,
+            "uniforme": true
+          },
+          "Ticket Subject": {
+            "k_categorias": 16,
+            "chi2": 27.86,
+            "p": 0.0225,
+            "uniforme": true
+          }
+        },
+        "n_colunas_uniformes": 6,
+        "n_colunas_testadas": 6,
+        "implicacao": "Categoricas uniformes = nem a composicao de volume por canal/tipo/produto carrega informacao. O dataset nao sustenta sequer analise descritiva de mix.",
+        "esperado_se_real": "mix desbalanceado (lei de Pareto no suporte)",
+        "veredito": "SINTETICO"
+      },
+      {
         "nome": "Completude e composicao do backlog",
         "n_registros": 8469,
         "n_registros_prometido_no_brief": 30000,
@@ -91,12 +191,12 @@
         },
         "tickets_fechados": 2769,
         "pct_nunca_fechados": 67.3,
-        "observacao": "Resolution, Time to Resolution e CSAT tem exatamente o mesmo numero de nulos: so existem para tickets Closed.",
-        "veredito": "ESTRUTURAL_APROVEITAVEL"
+        "observacao": "Resolution, Time to Resolution e CSAT tem exatamente o mesmo numero de nulos: so existem para tickets Closed. ATENCAO: como Ticket Status tambem e uniforme (teste 8), os 67,3% 'nunca fechados' NAO representam um backlog real - e 1/3 por status atribuido aleatoriamente.",
+        "veredito": "CONTEXTO"
       }
     ],
-    "n_testes_condenatorios": 5,
-    "conclusao": "Metricas operacionais (tempos, CSAT) sao ruido aleatorio. Campos estruturais (canal, tipo, produto, status) sao aproveitaveis para analise de composicao."
+    "n_testes_condenatorios": 8,
+    "conclusao": "Dataset integralmente gerado por biblioteca de dados falsos (assinatura Faker confirmada). Nao apenas as metricas: TODAS as categoricas sao uniformes, entao nem a composicao de volume por canal/tipo/produto carrega informacao. Nenhum KPI operacional pode ser derivado deste arquivo."
   },
   "dataset_2": {
     "nome": "Perfil de qualidade do Dataset 2",

@@ -2,12 +2,18 @@
 01 - Auditoria de integridade dos datasets
 ==========================================
 Antes de diagnosticar a operacao, e preciso saber se os dados sustentam
-qualquer conclusao. Este script executa seis testes independentes de
+qualquer conclusao. Este script executa nove testes independentes de
 integridade sobre o Dataset 1 (customer_support_tickets.csv) e um perfil
 de qualidade sobre o Dataset 2 (all_tickets_processed_improved_v3.csv).
 
-Conclusao (reproduzivel abaixo): as metricas operacionais do Dataset 1 sao
-ruido gerado aleatoriamente. Os campos estruturais sobrevivem.
+Conclusao (reproduzivel abaixo): 8 dos 9 testes condenam o Dataset 1. Ele foi
+gerado integralmente pela biblioteca Faker - assinatura confirmada pelos
+dominios RFC 2606 em 100% dos e-mails e pelo vocabulario aleatorio do campo
+Resolution. Nao sao apenas as metricas: TODAS as categoricas sao uniformes,
+portanto nem a composicao de volume por canal/tipo/produto tem informacao.
+Nenhum KPI operacional pode ser derivado deste arquivo.
+
+O Dataset 2, ao contrario, e real e sustenta a solucao quantitativa.
 
 Uso:   python 01_auditoria_integridade.py
 Saida: outputs/auditoria_resultados.json  +  relatorio em stdout
@@ -140,7 +146,74 @@ def teste_5_ausencia_de_sinal(ds1):
     }
 
 
-def teste_6_completude(ds1):
+def teste_6_dominios_email(ds1):
+    """example.com/org/net sao reservados pela RFC 2606 e sao o padrao do Faker."""
+    dominios = ds1["Customer Email"].str.split("@").str[1]
+    reservados = dominios.isin(["example.com", "example.org", "example.net"])
+    return {
+        "nome": "Dominios de e-mail reservados (assinatura do Faker)",
+        "distribuicao_dominios": {str(k): int(v)
+                                  for k, v in dominios.value_counts().items()},
+        "pct_dominios_reservados_rfc2606": round(float(reservados.mean()) * 100, 2),
+        "esperado_se_real": "dominios variados de provedores reais",
+        "veredito": "SINTETICO" if reservados.mean() > 0.5 else "ok",
+    }
+
+
+def teste_7_vocabulario_resolucao(ds1):
+    """O campo Resolution deveria conter linguagem de atendimento."""
+    res = ds1["Resolution"].dropna()
+    palavras = pd.Series(" ".join(res).lower().replace(".", "").split())
+    termos = ["refund", "replace", "ticket", "resolved", "reset",
+              "support", "customer", "issue", "account"]
+    ocorrencias = {t: int(palavras.eq(t).sum()) for t in termos}
+    ausentes = [t for t, n in ocorrencias.items() if n == 0]
+    return {
+        "nome": "Vocabulario do campo Resolution",
+        "n_resolucoes": int(len(res)),
+        "palavras_unicas": int(palavras.nunique()),
+        "top_10_palavras": {str(k): int(v)
+                            for k, v in palavras.value_counts().head(10).items()},
+        "ocorrencias_termos_de_suporte": ocorrencias,
+        "termos_com_zero_ocorrencias": ausentes,
+        "amostras": res.head(3).tolist(),
+        "esperado_se_real": "vocabulario dominado por termos de atendimento",
+        "veredito": "SINTETICO" if len(ausentes) >= 3 else "ok",
+    }
+
+
+def teste_8_uniformidade_categoricas(ds1):
+    """Se TODA categorica for uniforme, nao ha nem composicao aproveitavel."""
+    colunas = ["Ticket Channel", "Ticket Priority", "Ticket Type",
+               "Ticket Status", "Product Purchased", "Ticket Subject"]
+    # Bonferroni: 6 testes simultaneos
+    alfa_corrigido = ALFA / len(colunas)
+    resultados = {}
+    uniformes = 0
+    for c in colunas:
+        vc = ds1[c].value_counts()
+        chi2, p = stats.chisquare(vc.values)
+        eh_uniforme = p > alfa_corrigido
+        uniformes += eh_uniforme
+        resultados[c] = {"k_categorias": int(len(vc)),
+                         "chi2": round(float(chi2), 2),
+                         "p": round(float(p), 4),
+                         "uniforme": bool(eh_uniforme)}
+    return {
+        "nome": "Uniformidade de TODAS as categoricas (chi2 vs uniforme)",
+        "alfa_bonferroni": round(alfa_corrigido, 5),
+        "resultados": resultados,
+        "n_colunas_uniformes": int(uniformes),
+        "n_colunas_testadas": len(colunas),
+        "implicacao": ("Categoricas uniformes = nem a composicao de volume "
+                       "por canal/tipo/produto carrega informacao. O dataset "
+                       "nao sustenta sequer analise descritiva de mix."),
+        "esperado_se_real": "mix desbalanceado (lei de Pareto no suporte)",
+        "veredito": "SINTETICO" if uniformes == len(colunas) else "ok",
+    }
+
+
+def teste_9_completude(ds1):
     """Este teste NAO condena: mede o que sobra de aproveitavel."""
     n = len(ds1)
     nulos = ds1.isna().sum()
@@ -154,8 +227,11 @@ def teste_6_completude(ds1):
         "tickets_fechados": fechados,
         "pct_nunca_fechados": round((n - fechados) / n * 100, 2),
         "observacao": ("Resolution, Time to Resolution e CSAT tem exatamente o "
-                       "mesmo numero de nulos: so existem para tickets Closed."),
-        "veredito": "ESTRUTURAL_APROVEITAVEL",
+                       "mesmo numero de nulos: so existem para tickets Closed. "
+                       "ATENCAO: como Ticket Status tambem e uniforme (teste 8), "
+                       "os 67,3% 'nunca fechados' NAO representam um backlog "
+                       "real - e 1/3 por status atribuido aleatoriamente."),
+        "veredito": "CONTEXTO",
     }
 
 
@@ -189,7 +265,9 @@ def main():
     ds1, ds2 = carregar()
     testes = [teste_1_placeholders(ds1), teste_2_janela_temporal(ds1),
               teste_3_causalidade_temporal(ds1), teste_4_uniformidade_csat(ds1),
-              teste_5_ausencia_de_sinal(ds1), teste_6_completude(ds1)]
+              teste_5_ausencia_de_sinal(ds1), teste_6_dominios_email(ds1),
+              teste_7_vocabulario_resolucao(ds1),
+              teste_8_uniformidade_categoricas(ds1), teste_9_completude(ds1)]
     ds2_perfil = perfil_ds2(ds2)
     condenatorios = [t for t in testes if t["veredito"] == "SINTETICO"]
 
@@ -198,9 +276,12 @@ def main():
             "arquivo": "customer_support_tickets.csv",
             "testes": testes,
             "n_testes_condenatorios": len(condenatorios),
-            "conclusao": ("Metricas operacionais (tempos, CSAT) sao ruido "
-                          "aleatorio. Campos estruturais (canal, tipo, produto, "
-                          "status) sao aproveitaveis para analise de composicao."),
+            "conclusao": ("Dataset integralmente gerado por biblioteca de "
+                          "dados falsos (assinatura Faker confirmada). Nao "
+                          "apenas as metricas: TODAS as categoricas sao "
+                          "uniformes, entao nem a composicao de volume por "
+                          "canal/tipo/produto carrega informacao. Nenhum KPI "
+                          "operacional pode ser derivado deste arquivo."),
         },
         "dataset_2": ds2_perfil,
     }
@@ -218,7 +299,7 @@ def main():
             if k not in ("nome", "veredito"):
                 print(f"     {k}: {v}")
     print("\n" + "=" * 78)
-    print(f"VEREDITO: {len(condenatorios)}/6 testes condenam o Dataset 1.")
+    print(f"VEREDITO: {len(condenatorios)}/{len(testes)} testes condenam o Dataset 1.")
     print(f"JSON salvo em: {destino}")
     print("=" * 78)
 
