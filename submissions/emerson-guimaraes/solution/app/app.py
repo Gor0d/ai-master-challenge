@@ -23,7 +23,10 @@ from joblib import load
 
 AQUI = Path(__file__).resolve()
 SAIDA = AQUI.parents[1] / "outputs"
-RAIZ_REPO = AQUI.parents[5]
+# submissions/<nome>/solution/app/app.py -> parents[4] e a raiz do repo,
+# o mesmo indice usado pelos scripts. Manter alinhado: e daqui que sai o
+# caminho dos CSVs usados pela aba de lote e pelos exemplos reais.
+RAIZ_REPO = AQUI.parents[4]
 DADOS = RAIZ_REPO / "datasets" / "raw"
 
 st.set_page_config(page_title="Mesa de Triagem", page_icon=":material/inbox:",
@@ -34,10 +37,21 @@ st.set_page_config(page_title="Mesa de Triagem", page_icon=":material/inbox:",
 
 @st.cache_resource
 def carregar_modelo():
+    """Devolve (modelo, erro).
+
+    O modelo treinado vem versionado no repositorio para que o avaliador
+    rode o app sem treinar nada. Mas joblib nao garante compatibilidade
+    entre versoes de scikit-learn: num ambiente diferente o pickle pode
+    falhar. Nesse caso a tela tem de dizer o que fazer, nao mostrar
+    traceback.
+    """
     caminho = SAIDA / "modelo_triagem.joblib"
     if not caminho.exists():
-        return None
-    return load(caminho)
+        return None, "arquivo nao encontrado"
+    try:
+        return load(caminho), None
+    except Exception as e:
+        return None, f"falha ao desserializar ({type(e).__name__})"
 
 
 @st.cache_data
@@ -57,12 +71,18 @@ def carregar_amostra(n=400):
     return d.sample(n=min(n, len(d)), random_state=7).reset_index(drop=True)
 
 
-modelo = carregar_modelo()
+modelo, erro_modelo = carregar_modelo()
 metricas = carregar_metricas()
 
 if modelo is None or metricas is None:
-    st.error("Modelo nao encontrado. Rode antes:\n\n"
-             "`python ../scripts/03_classificador.py`")
+    st.error(
+        f"Modelo indisponivel: {erro_modelo or 'metricas ausentes'}.\n\n"
+        "O modelo treinado e as metricas vem versionados em "
+        "`solution/outputs/`. Se faltarem, ou se a versao de "
+        "scikit-learn deste ambiente for incompativel com a do pickle, "
+        "regenere com:\n\n"
+        "`python scripts/03_classificador.py`\n\n"
+        f"Procurado em: `{SAIDA}`")
     st.stop()
 
 CLASSES = list(modelo.named_steps["clf"].classes_)
@@ -208,7 +228,12 @@ with aba2:
 
     amostra = carregar_amostra()
     if amostra is None:
-        st.error("Dataset nao encontrado em datasets/raw/.")
+        st.error(
+            "Dataset 2 nao encontrado. Esta aba roda sobre os tickets reais "
+            "do dataset, nao sobre exemplos embutidos - por isso depende do "
+            "CSV.\n\n"
+            f"Procurado em: `{DADOS / 'all_tickets_processed_improved_v3.csv'}`"
+            "\n\nVer `docs/SETUP.md` para obter os dados.")
     else:
         if st.button("Rodar triagem no lote", type="primary"):
             proba = modelo.predict_proba(amostra["Document"])

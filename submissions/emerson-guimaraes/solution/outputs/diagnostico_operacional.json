@@ -271,6 +271,6 @@
     "nota_metodologica": "Estimativas de esforco de engenharia, nao orcamento medido. Ajustar ao custo real de TI/dados da operacao antes de aprovar.",
     "economia_liquida_mensal_apos_manutencao_brl": 4689.33,
     "payback_meses": 2.6,
-    "leitura": "Com integracao estimada em R$ 12.000 e manutencao de R$ 600/mes. o investimento se paga em ~2.6 meses no cenario recomendado. A fase de sombra (2-4 semanas) nao tem custo de integracao. porque valida a acuracia antes de qualquer investimento em deploy."
+    "leitura": "Com integracao estimada em R$ 12.000 e manutencao de R$ 600/mes, o investimento se paga em ~2.6 meses no cenario recomendado. A fase de sombra (2-4 semanas) nao tem custo de integracao, porque valida a acuracia antes de qualquer investimento em deploy."
   }
 }

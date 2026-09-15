@@ -42,7 +42,7 @@ O ponto de partida óbvio seria "usar embeddings" ou "zero-shot classification" 
 | Método | Acurácia | F1 macro | N testado | Custo |
 |---|---|---|---|---|
 | **TF-IDF + LogisticRegression (adotado)** | **86,40%** | **0,8653** | 11.960 | nenhum — CPU, sem download |
-| Embeddings (MiniLM) + LogisticRegression | 78,07% | 0,7777 | 11.960 | download ~80MB; ~170s de encoding em CPU |
+| Embeddings (MiniLM) + LogisticRegression | 78,07% | 0,7777 | 11.960 | download ~80MB; ~21 min de encoding em CPU (1.258s medidos) |
 | Zero-shot (BART-MNLI, sem treino) | **23,75%** | 0,1325 | 240 (amostra) | download ~1,6GB; ~1,7s/ticket em CPU |
 
 **O TF-IDF venceu de forma decisiva, e o zero-shot ficou abaixo até do baseline ingênuo** (28,47% de acerto só chutando a classe majoritária). Script completo em `solution/scripts/04_embeddings_zeroshot.py`.
@@ -179,7 +179,7 @@ Premissas explícitas — e todas editáveis na calculadora do protótipo:
 | Retrabalho por roteamento errado | 12,0 min |
 | Jornada | 168 h/mês |
 
-**Operação de 30.000 tickets/ano:**
+**Operação de 30.000 tickets/ano** — é o volume citado no brief, e é a escala de todos os valores desta seção. Sobre os 8.469 tickets que o Dataset 1 efetivamente entrega, os mesmos parâmetros dão R$ 17.918/ano (fator 3,54×; tabela das duas escalas no [diagnóstico](01_diagnostico_operacional.md#o-custo-atual--números-real-e-projetado-sem-misturar)).
 
 | Cenário | Limiar | Cobertura | Horas líquidas/ano | Economia/ano | FTE |
 |---|---|---|---|---|---|

@@ -34,7 +34,7 @@ Ataquei o problema em quatro movimentos, nesta ordem deliberada:
 
 **Relatório consolidado em PDF** (capa, sumário, arquitetura e fluxo de decisão em diagrama):
 [`solution/relatorio/Relatorio_Redesign_Suporte_Emerson_Guimaraes.pdf`](solution/relatorio/Relatorio_Redesign_Suporte_Emerson_Guimaraes.pdf)
-— reune os três documentos abaixo em 20 páginas. Regenerável com
+— reune os três documentos e o diário em 26 páginas. Regenerável com
 `python solution/relatorio/build_pdf.py` (usa Edge/Chrome headless, sem dependências pesadas).
 
 **Documentos-fonte, na ordem de leitura:**
@@ -144,16 +144,17 @@ Três correções concretas, todas registradas no [Diário de Bordo](docs/DIARIO
 
 ### Iterações
 
-Aproximadamente 20 ciclos de trabalho, com 4 commits temáticos. A auditoria sozinha passou por três rodadas: suspeita inicial → 6 testes → 9 testes com a assinatura do Faker → retratação da hipótese estrutural.
+Aproximadamente 20 ciclos de trabalho, distribuídos em 12 commits temáticos. A auditoria sozinha passou por três rodadas: suspeita inicial → 6 testes → 9 testes com a assinatura do Faker → retratação da hipótese estrutural.
 
 ---
 
 ## Evidências
 
-- [x] **Git history** — 9 commits temáticos com a evolução do raciocínio nas mensagens, incluindo o commit que registra a retratação
+- [x] **Git history** — 12 commits temáticos com a evolução do raciocínio nas mensagens, incluindo o commit que registra a retratação
 - [x] **Narrativa escrita** — [Diário de Bordo](docs/DIARIO_DE_BORDO.md), escrito durante o trabalho e não reconstruído no fim
 - [x] **Código reproduzível** — todos os números desta submissão saem de `solution/scripts/`, executáveis de ponta a ponta
 - [x] **Saídas brutas versionadas** — JSONs em `solution/outputs/` para conferência independente
+- [x] **Reprodução em ambiente limpo** — pipeline reexecutado do zero em outra máquina/versão (Python 3.14, scikit-learn 1.9.1): `auditoria_resultados.json` e `classificador_metricas.json` saíram **byte a byte idênticos** aos commitados. Registro na [Etapa 16 do diário](docs/DIARIO_DE_BORDO.md)
 - [x] **Screenshots das conversas com IA** — 15 capturas cronológicas em [`process-log/screenshots/`](process-log/screenshots/), do clone do repositório ao checklist final. Duas delas tiveram um token de API redigido antes da publicação (ver nota no índice do process log)
 - [x] **Resumo visual do processo** — [Case File 002](https://claude.ai/artifact/UEutxhGMDpEbQpWEB8xVBZ), uma página com a linha do tempo dos 9 marcos reais da sessão, incluindo a retratação e o teste de embeddings/zero-shot. Complementa o diário e os screenshots — não os substitui
 - [ ] Screen recording do workflow
@@ -179,7 +180,8 @@ submissions/emerson-guimaraes/
 │   │   ├── 01_diagnostico_operacional.md
 │   │   ├── 02_proposta_automacao.md
 │   │   └── 03_anexo_auditoria_dados.md
-│   └── requirements.txt
+│   ├── requirements.txt                    deps do app e dos scripts
+│   └── requirements-experimento.txt        deps do script 04 (opcional)
 └── docs/
     ├── DIARIO_DE_BORDO.md
     └── SETUP.md

@@ -1,3 +1,5 @@
+# Dependencias do diagnostico, do classificador e do prototipo.
+# Tudo roda em CPU, sem GPU e sem chave de API.
 pandas>=2.0
 numpy>=1.24
 scipy>=1.11
@@ -5,11 +7,13 @@ scikit-learn>=1.3
 joblib>=1.3
 streamlit>=1.30
 
-# Apenas para regenerar o PDF consolidado (relatorio/build_pdf.py) - opcional
+# Apenas para regenerar o PDF consolidado (relatorio/build_pdf.py).
+# O PDF ja vem versionado; instale so se quiser reconstrui-lo.
 markdown>=3.5
 
-# Apenas para o experimento comparativo (scripts/04_embeddings_zeroshot.py) -
-# opcional, nao e dependencia do classificador principal (script 03)
-sentence-transformers>=3.0
-transformers>=4.40
-torch>=2.0
+# O experimento comparativo (scripts/04_embeddings_zeroshot.py) precisa de
+# torch + transformers, que somam ~2,5 GB de download. Ficam FORA deste
+# arquivo de proposito: nada do que a submissao afirma depende de instalar
+# isso - as metricas do experimento ja estao em
+# outputs/embeddings_zeroshot_metricas.json.
+# Para reproduzir o experimento:  pip install -r requirements-experimento.txt

@@ -1,0 +1,13 @@
+# Somente para reproduzir scripts/04_embeddings_zeroshot.py, o experimento
+# que compara TF-IDF com embeddings (MiniLM) e zero-shot (BART-MNLI).
+#
+# ~2,5 GB de download e ~30 min de execucao em CPU. Nao e necessario para o
+# diagnostico, para o classificador nem para o prototipo - as metricas do
+# experimento estao versionadas em outputs/embeddings_zeroshot_metricas.json.
+#
+#   pip install -r requirements.txt -r requirements-experimento.txt
+#   python scripts/04_embeddings_zeroshot.py
+
+sentence-transformers>=3.0
+transformers>=4.40
+torch>=2.0

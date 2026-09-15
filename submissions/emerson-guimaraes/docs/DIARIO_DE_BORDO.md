@@ -2,7 +2,7 @@
 
 Registro corrido das decisões, becos sem saída e correções de rota. Escrito **durante** o trabalho, não reconstruído no fim — é a matéria-prima do process log.
 
-**Status atual:** entrega completa — itens 1 a 4 do brief atendidos
+**Status atual:** entrega completa — itens 1 a 4 do brief atendidos; revisada e reexecutada do zero na Etapa 16, pendente apenas o screen recording
 
 ---
 
@@ -100,6 +100,35 @@ Pipeline validado do zero: apagados os outputs e reexecutados os três scripts n
 
 ---
 
+### Etapa 10 — Auditoria de qualidade e PDF consolidado
+
+Pedido do usuário: auditar o que foi entregue e converter os markdowns em
+um PDF apresentável, com diagramas de arquitetura.
+
+**Auditoria de qualidade:** pipeline reexecutado do zero (outputs apagados
+e regerados) — números idênticos. Links internos, cobertura de
+`requirements.txt` e consistência numérica entre os 4 documentos
+conferidos por script, não de memória. Sinais de formatação (moeda,
+R², χ², sinal de menos tipográfico) auditados por regex — nenhuma
+inconsistência real (uma falsa suspeita de mojibake era artefato do
+terminal, não do arquivo).
+
+**PDF consolidado:** WeasyPrint foi descartado por depender de
+bibliotecas GTK nativas ausentes no Windows. Caminho adotado: HTML com
+CSS de impressão + diagramas SVG inline, renderizado via **Edge headless**
+(`msedge --headless=new --print-to-pdf`), que já vem instalado no Windows
+e não exige nenhuma dependência nova pesada.
+
+**Bug capturado na primeira renderização:** o diagrama de arquitetura
+apareceu como texto literal `{DIAGRAMA_ARQUITETURA}` na página — a função
+que monta o sumário executivo usava string tripla comum, não f-string.
+Corrigido com placeholder + `.replace()` explícito, e a segunda
+renderização foi inspecionada página a página (20 páginas, via PyMuPDF)
+antes de aceitar o resultado. Também corrigidos no mesmo ciclo: título da
+capa ilegível (herdava cor escura do body) e zebra-striping da tabela
+global vazando para dentro da capa azul.
+---
+
 ### Etapa 11 — Revisão crítica externa e correção de cinco pontos concretos
 
 Pedi uma avaliação honesta do case contra os critérios de qualidade do brief, e recebi de volta uma revisão com objeções específicas e verificáveis — o tipo de crítica que vale mais do que elogio. Cinco delas geraram mudança real:
@@ -186,6 +215,79 @@ Só depois veio a mudança que efetivamente melhorou o número: adicionei ao ROI
 
 ---
 
+### Etapa 16 — Revisão final antes do PR: um bug no protótipo e duas contradições numéricas
+
+Última passada antes de abrir o pull request, num clone limpo e num ambiente
+novo (Python 3.14, scikit-learn 1.9.1, sem os CSVs baixados) — de propósito,
+para ver a submissão como o avaliador vai ver. Treze problemas encontrados,
+três deles graves.
+
+**1. O protótipo tinha um bug que quebrava a aba de dados reais.** O
+`app.py` resolvia a raiz do repositório com `AQUI.parents[5]`; o índice
+correto é `parents[4]`, que é o que os quatro scripts usam. O app procurava
+os CSVs em `C:\Projetos` em vez de `C:\Projetos\CASE-G4` e nunca os
+encontrava. Efeito prático: a aba "Lote (dados reais)" mostrava erro e os
+exemplos de tickets reais desapareciam da aba de triagem — justamente as
+duas coisas que respondem ao critério *"funciona com dados reais, não com 3
+exemplos cherry-picked"*. O bug passou porque a validação anterior do
+protótipo (Etapa 8) foi feita com o app rodando de um diretório em que o
+caminho errado, por coincidência, ainda resolvia.
+
+**2. O PDF contradizia a si mesmo no número principal.** O sumário
+executivo do `build_pdf.py` é escrito à mão, e a Etapa 15 atualizou os
+markdowns e o README para R$ 63.472 / 0,71 FTE sem atualizar o gerador. A
+página 3 do PDF dizia R$ 50.009 / 0,57 FTE enquanto as páginas 5, 7, 8 e 13
+do mesmo arquivo diziam 63.472. É a primeira página que o Diretor lê.
+Corrigido, e o sumário ganhou as linhas de payback, sensibilidade e
+TF-IDF-vs-embeddings que já existiam no README.
+
+**3. Um número do relatório era desmentido pela própria evidência
+versionada.** A proposta afirmava "~170s de encoding em CPU" para os
+embeddings; o `embeddings_zeroshot_metricas.json`, no mesmo repositório,
+registra 1.258,5s. Quem abrisse o JSON pegaria a inconsistência. Corrigido
+para ~21 min, com o valor medido ao lado.
+
+**Os outros dez** foram de consistência e de atrito para quem avalia: três
+afirmações deste diário que a própria entrega já havia superado (o gap 6
+dado como "em aberto" depois de fechado na Etapa 13; "transformer não foi
+testado" na seção do que ficou de fora; "screenshots ainda não capturados"
+com 15 deles no process log), a Etapa 10 fora de ordem cronológica,
+contagem errada de commits e de páginas do PDF, o `.gitignore` local ainda
+dizendo que o modelo não pertence ao PR depois de a Etapa 15 decidir
+versioná-lo, `requirements.txt` obrigando 2,5 GB de torch em quem só quer
+ver o app rodar (separado em `requirements-experimento.txt`), o tempo do
+script 04 subestimado em 3× no SETUP, e um `.replace(",", ".")` aplicado
+sobre a frase inteira que trocava as vírgulas da prosa por pontos na saída
+JSON do payback.
+
+**A validação que fecha a rodada:** com os CSVs baixados de novo, o pipeline
+foi reexecutado do zero num ambiente diferente do original.
+`auditoria_resultados.json` e `classificador_metricas.json` saíram **byte a
+byte idênticos** aos commitados — 86,40% de acurácia, F1 macro 0,8653,
+cobertura de 60,11% a 97,48%, mesma matriz de confusão. O único diff em
+`diagnostico_operacional.json` foi a linha da vírgula corrigida. O modelo
+retreinado dá predições idênticas em 3.000 tickets (diferença máxima de
+probabilidade: 5,7e-05, ruído de convergência entre scikit-learn 1.9.0 e
+1.9.1), então o binário commitado foi mantido em vez de gerar 8 MB de diff
+sem efeito.
+
+A aba de lote, agora com o caminho certo, roda sobre 400 tickets reais e
+entrega 59,0% de cobertura automática a 99,2% de acurácia — coerente com os
+60,11% a 97,48% medidos no conjunto de teste completo. Um dos oito exemplos
+reais (um ticket de Hardware) é classificado errado, com 63,2% de
+confiança: abaixo do limiar, portanto vai para humano. O comportamento
+correto, e o motivo de os exemplos serem sorteados do dataset com o rótulo
+verdadeiro à vista em vez de escritos para a demo.
+
+**Aprendizado:** as três correções graves são todas de *propagação* — não de
+raciocínio. Um número mudou na Etapa 15 e não chegou a um dos quatro
+lugares onde aparecia; um caminho foi escrito uma vez e nunca reexecutado do
+diretório certo; um tempo foi citado de memória em vez de lido do JSON ao
+lado. Nenhuma delas seria pega relendo o texto: só reexecutando num
+ambiente limpo e conferindo cada número contra a saída que o gerou.
+
+---
+
 ## Gaps e riscos em aberto
 
 | # | Item | Natureza | Status |
@@ -195,7 +297,7 @@ Só depois veio a mudança que efetivamente melhorou o número: adicionei ao ROI
 | 3 | `submissions/` no `.gitignore` | Falha silenciosa de submissão | Contornado com `git add -f` |
 | 4 | DS2 tem rótulos ruidosos (ex.: pedido de acesso rotulado como "HR Support") | Teto de acurácia do classificador | Quantificado: confusões Hardware↔Misc↔HR somam ~5% por classe. Tratado como limite de taxonomia, não de modelo |
 | 5 | DS2 desbalanceado 7,74× | Risco de viés para a classe majoritária | Resolvido com `class_weight="balanced"`; F1 macro 0,865 e nenhuma classe com recall < 70% |
-| 6 | DS2 vem pré-processado (lematizado, sem stopwords, PII mascarada) | Limita o ganho de LLM sobre TF-IDF | **Em aberto** — não testei transformer contra o baseline. Ganho esperado pequeno, custo por chamada permanente |
+| 6 | DS2 vem pré-processado (lematizado, sem stopwords, PII mascarada) | Limita o ganho de LLM sobre TF-IDF | **Fechado na Etapa 13** — embeddings (MiniLM) e zero-shot (BART-MNLI) testados no mesmo split: 78,07% e 23,75% contra 86,40% do TF-IDF. O pré-processamento é a causa, e está explicada na proposta |
 | 7 | Sem dados temporais reais, não há cálculo honesto de horas desperdiçadas | Impacta o pedido de ROI | Mitigado: ROI por volume (fato) × tempo/tarefa (premissa explícita) × cobertura medida. Todas as premissas editáveis no protótipo |
 | 8 | Modelo treinado em TI corporativo em inglês | Acurácia cai em outro domínio/idioma | **Em aberto** — mitigação proposta: fase de sombra antes de rotear |
 
@@ -205,42 +307,12 @@ Denunciar o dataset é a maior aposta desta submissão. Se o avaliador esperar o
 
 **Mitigação adotada:** não parar na denúncia. Entregar as três respostas que o Diretor pediu, pelo caminho honesto — instrumento parametrizável em vez de números inventados — e deixar explícito, com números reproduzíveis, por que este é o único caminho defensável. O critério de avaliação declarado no README (*"a análise distingue correlação de causalidade"*) sustenta a escolha.
 
----
-
-### Etapa 10 — Auditoria de qualidade e PDF consolidado
-
-Pedido do usuário: auditar o que foi entregue e converter os markdowns em
-um PDF apresentável, com diagramas de arquitetura.
-
-**Auditoria de qualidade:** pipeline reexecutado do zero (outputs apagados
-e regerados) — números idênticos. Links internos, cobertura de
-`requirements.txt` e consistência numérica entre os 4 documentos
-conferidos por script, não de memória. Sinais de formatação (moeda,
-R², χ², sinal de menos tipográfico) auditados por regex — nenhuma
-inconsistência real (uma falsa suspeita de mojibake era artefato do
-terminal, não do arquivo).
-
-**PDF consolidado:** WeasyPrint foi descartado por depender de
-bibliotecas GTK nativas ausentes no Windows. Caminho adotado: HTML com
-CSS de impressão + diagramas SVG inline, renderizado via **Edge headless**
-(`msedge --headless=new --print-to-pdf`), que já vem instalado no Windows
-e não exige nenhuma dependência nova pesada.
-
-**Bug capturado na primeira renderização:** o diagrama de arquitetura
-apareceu como texto literal `{DIAGRAMA_ARQUITETURA}` na página — a função
-que monta o sumário executivo usava string tripla comum, não f-string.
-Corrigido com placeholder + `.replace()` explícito, e a segunda
-renderização foi inspecionada página a página (20 páginas, via PyMuPDF)
-antes de aceitar o resultado. Também corrigidos no mesmo ciclo: título da
-capa ilegível (herdava cor escura do body) e zebra-striping da tabela
-global vazando para dentro da capa azul.
-
 ## O que ficou de fora, e por quê
 
-- **Transformer/LLM como classificador.** Com o texto já lematizado e sem stopwords, o ganho sobre TF-IDF tende a ser pequeno, e o custo por chamada é permanente. Deveria ser testado antes de uma decisão definitiva de arquitetura — não foi, e está declarado nas limitações.
+- **LLM proprietário via API como classificador.** Embeddings locais e zero-shot local foram testados (Etapa 13) e perderam do TF-IDF. O que ficou de fora foi o teste com um LLM pago (GPT/Claude) como classificador: exigiria chave de API e custo por chamada permanente, e o resultado dos dois testes locais indica que o limite aqui é o formato do texto — já lematizado e sem stopwords — não a capacidade do modelo.
 - **Detecção de duplicatas.** O brief cita como possibilidade. O DS2 tem zero duplicatas exatas, e sem ID de cliente ou timestamp não dá para detectar reaberturas — que é o caso que realmente importa.
 - **Respostas sugeridas.** Descartado por falta de base: o único campo de resolução disponível é texto gerado por Faker.
 
 ## Evidência que depende do candidato
 
-Screenshots e screen recording do workflow ainda não foram capturados. O git history, o código reproduzível e este diário cobrem a narrativa, mas o guia de submissão valoriza evidência visual — vale acrescentar antes de abrir o PR.
+Os 15 screenshots da sessão real foram capturados e indexados na Etapa 12 (`process-log/screenshots/`). **Falta apenas o screen recording do workflow** — é o único item desmarcado na lista de evidências do README. O git history, o código reproduzível, os screenshots e este diário já cobrem a narrativa; a gravação acrescenta a demonstração do protótipo em funcionamento.

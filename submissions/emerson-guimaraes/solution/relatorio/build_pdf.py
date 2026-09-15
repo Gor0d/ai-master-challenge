@@ -215,12 +215,16 @@ def montar_sumario_executivo():
     fornecidos, e eu reporto isso com os testes que provam, em vez de
     inventar números.</p>
     <p>A terceira pergunta tem resposta e vale dinheiro:
-    <strong>R$ 90.000/ano gastos em triagem manual</strong>. Construí então
-    um classificador sobre os 47.837 tickets reais do Dataset 2 que atinge
+    <strong>R$ 90.000/ano gastos em triagem manual</strong> — projeção para
+    os 30 mil tickets/ano citados no brief; R$ 25.407/ano sobre os 8.469
+    tickets efetivamente entregues. Construí então um classificador sobre
+    os 47.837 tickets reais do Dataset 2 que atinge
     <strong>86,4% de acurácia</strong> e, calibrado a um limiar de confiança
     de 0,80, <strong>roteia sozinho 60,11% dos tickets com 97,48% de
-    acerto</strong> — recuperando <strong>R$ 50.009/ano (0,57 FTE)</strong>,
-    já descontado o retrabalho dos próprios erros.</p>
+    acerto</strong> — recuperando <strong>R$ 63.472/ano (0,71 FTE)</strong>,
+    já descontado o retrabalho dos próprios erros e somado o tempo poupado
+    nos tickets que ainda vão para humano, que chegam com sugestão pronta.
+    Payback estimado em <strong>≈ 2,6 meses</strong>.</p>
   </div>
 
   <h2>Números que sustentam a entrega</h2>
@@ -233,11 +237,19 @@ def montar_sumario_executivo():
     <tr><td>Nada explica a satisfação</td>
         <td>R² de teste = <strong>−0,0525</strong> (pior que chutar a média)</td></tr>
     <tr><td>Classificador funciona</td>
-        <td><strong>86,40%</strong> de acurácia vs 28,47% do baseline (+57,93 p.p.)</td></tr>
+        <td><strong>86,40%</strong> de acurácia vs 28,47% do baseline (+57,93 p.p.), F1 macro 0,865</td></tr>
+    <tr><td>TF-IDF venceu embeddings e zero-shot, testado</td>
+        <td>86,40% vs. 78,07% (embeddings) vs. <strong>23,75%</strong> (zero-shot) — mesmo split de teste</td></tr>
     <tr><td>Automação viável e medida</td>
         <td>limiar 0,80 → <strong>60,11%</strong> de cobertura a <strong>97,48%</strong> de acurácia</td></tr>
     <tr><td>Ganho financeiro</td>
-        <td><strong>R$ 50.009/ano</strong> líquidos (0,57 FTE) em 30 mil tickets</td></tr>
+        <td><strong>R$ 63.472/ano</strong> líquidos (0,71 FTE) — projeção p/ 30 mil tickets;
+        R$ 17.918 sobre os 8.469 tickets reais entregues</td></tr>
+    <tr><td>Payback do investimento</td>
+        <td>≈ <strong>2,6 meses</strong> (integração estimada em R$ 12.000; fase de sombra custa R$ 0)</td></tr>
+    <tr><td>Sensibilidade ao custo/hora</td>
+        <td>de <strong>R$ 42.315</strong> (R$ 30/h) a <strong>R$ 84.629</strong> (R$ 60/h) —
+        R$ 45/h é benchmark, não a folha real da operação</td></tr>
   </table>
 
   <h2>Arquitetura da solução</h2>

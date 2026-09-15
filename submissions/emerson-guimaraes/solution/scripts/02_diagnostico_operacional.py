@@ -50,6 +50,15 @@ PREMISSAS = {
 ALFA = 0.05
 
 
+def brl(v):
+    """Formata valor em reais no padrao brasileiro (1.234,56 -> 1.235).
+
+    Existe para nao precisar do .replace(",", ".") em cima da frase inteira,
+    que trocava tambem as virgulas da prosa por pontos.
+    """
+    return f"{v:,.0f}".replace(",", ".")
+
+
 def carregar():
     d = pd.read_csv(DADOS / "customer_support_tickets.csv")
     frt = pd.to_datetime(d["First Response Time"], errors="coerce")
@@ -329,13 +338,13 @@ def custo_implantacao_e_payback(desp):
             economia_mensal_liquida_manutencao, 2),
         "payback_meses": round(payback_meses, 1),
         "leitura": (
-            f"Com integracao estimada em R$ {custos['integracao_e_deploy_brl']:,.0f} "
-            f"e manutencao de R$ {custos['retreino_mensal_recorrente_brl_mes']:,.0f}/mes, "
+            f"Com integracao estimada em R$ {brl(custos['integracao_e_deploy_brl'])} "
+            f"e manutencao de R$ {brl(custos['retreino_mensal_recorrente_brl_mes'])}/mes, "
             f"o investimento se paga em ~{payback_meses:.1f} meses no cenario "
             "recomendado. A fase de sombra (2-4 semanas) nao tem custo de "
             "integracao, porque valida a acuracia antes de qualquer "
             "investimento em deploy."
-        ).replace(",", "."),
+        ),
     }
 
 

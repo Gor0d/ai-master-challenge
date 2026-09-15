@@ -6,6 +6,10 @@
 pip install -r submissions/emerson-guimaraes/solution/requirements.txt
 ```
 
+Instalação leve: pandas, scikit-learn, scipy, joblib, streamlit e markdown. Sem torch, sem GPU, sem chave de API.
+
+As dependências do experimento comparativo (script 04 — embeddings e zero-shot) ficam em `requirements-experimento.txt` porque somam ~2,5 GB e **não** são necessárias para o diagnóstico, o classificador ou o protótipo.
+
 ## 2. Dados
 
 Os dois CSVs do Kaggle precisam estar em `datasets/raw/` na **raiz do repositório**
@@ -53,9 +57,9 @@ python scripts/01_auditoria_integridade.py     # 9 testes de integridade
 python scripts/03_classificador.py             # treina o modelo (~1 min)
 python scripts/02_diagnostico_operacional.py   # diagnóstico + ROI
 
-# Opcional - compara TF-IDF com embeddings e zero-shot (~10 min em CPU,
-# baixa ~1,7GB de modelos na primeira execução; requer as dependências
-# extras do requirements.txt)
+# Opcional - compara TF-IDF com embeddings e zero-shot (~30 min em CPU).
+# Requer as dependencias extras e baixa ~1,7GB de modelos na 1a execucao:
+#   pip install -r requirements-experimento.txt
 python scripts/04_embeddings_zeroshot.py
 ```
 

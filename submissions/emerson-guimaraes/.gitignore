@@ -1,7 +1,11 @@
-# Modelo treinado: 8 MB, regenerado em ~1 min por scripts/03_classificador.py.
-# Binario desse tamanho nao pertence a um pull request.
-solution/outputs/*.joblib
+# O modelo treinado (solution/outputs/modelo_triagem.joblib, ~8 MB) E
+# versionado de proposito: o avaliador clona e roda o prototipo sem precisar
+# treinar antes. Regenerado em ~1 min por scripts/03_classificador.py se a
+# versao de scikit-learn do ambiente for incompativel com a do pickle.
 
 __pycache__/
 *.pyc
 .streamlit/
+
+# Artefato intermediario do build_pdf.py (o PDF final e versionado)
+solution/relatorio/_relatorio_consolidado.html
