@@ -1,0 +1,307 @@
+{
+  "configuracao": {
+    "n_treino": 35877,
+    "n_teste": 11960,
+    "n_classes": 8,
+    "classes": [
+      "Access",
+      "Administrative rights",
+      "HR Support",
+      "Hardware",
+      "Internal Project",
+      "Miscellaneous",
+      "Purchase",
+      "Storage"
+    ],
+    "modelo": "TF-IDF (1-2 gramas) + LogisticRegression balanced",
+    "semente": 42
+  },
+  "desempenho_global": {
+    "acuracia_pct": 86.4,
+    "f1_macro": 0.8653,
+    "f1_ponderado": 0.8643,
+    "baseline_classe_majoritaria_pct": 28.47,
+    "ganho_sobre_baseline_pp": 57.93
+  },
+  "curva_cobertura_x_acuracia": [
+    {
+      "limiar_confianca": 0.0,
+      "cobertura_pct": 100.0,
+      "n_automatizados": 11960,
+      "acuracia_no_aceito_pct": 86.4,
+      "n_escalados_para_humano": 0,
+      "erros_que_passariam": 1627
+    },
+    {
+      "limiar_confianca": 0.5,
+      "cobertura_pct": 87.08,
+      "n_automatizados": 10415,
+      "acuracia_no_aceito_pct": 91.6,
+      "n_escalados_para_humano": 1545,
+      "erros_que_passariam": 875
+    },
+    {
+      "limiar_confianca": 0.6,
+      "cobertura_pct": 78.49,
+      "n_automatizados": 9387,
+      "acuracia_no_aceito_pct": 93.98,
+      "n_escalados_para_humano": 2573,
+      "erros_que_passariam": 565
+    },
+    {
+      "limiar_confianca": 0.7,
+      "cobertura_pct": 69.67,
+      "n_automatizados": 8333,
+      "acuracia_no_aceito_pct": 95.91,
+      "n_escalados_para_humano": 3627,
+      "erros_que_passariam": 341
+    },
+    {
+      "limiar_confianca": 0.75,
+      "cobertura_pct": 64.82,
+      "n_automatizados": 7753,
+      "acuracia_no_aceito_pct": 96.85,
+      "n_escalados_para_humano": 4207,
+      "erros_que_passariam": 244
+    },
+    {
+      "limiar_confianca": 0.8,
+      "cobertura_pct": 60.11,
+      "n_automatizados": 7189,
+      "acuracia_no_aceito_pct": 97.48,
+      "n_escalados_para_humano": 4771,
+      "erros_que_passariam": 181
+    },
+    {
+      "limiar_confianca": 0.85,
+      "cobertura_pct": 54.72,
+      "n_automatizados": 6545,
+      "acuracia_no_aceito_pct": 98.07,
+      "n_escalados_para_humano": 5415,
+      "erros_que_passariam": 126
+    },
+    {
+      "limiar_confianca": 0.9,
+      "cobertura_pct": 47.51,
+      "n_automatizados": 5682,
+      "acuracia_no_aceito_pct": 98.77,
+      "n_escalados_para_humano": 6278,
+      "erros_que_passariam": 70
+    },
+    {
+      "limiar_confianca": 0.95,
+      "cobertura_pct": 37.86,
+      "n_automatizados": 4528,
+      "acuracia_no_aceito_pct": 99.29,
+      "n_escalados_para_humano": 7432,
+      "erros_que_passariam": 32
+    }
+  ],
+  "desempenho_por_classe": {
+    "Access": {
+      "precision": 0.8984,
+      "recall": 0.8838,
+      "f1-score": 0.891,
+      "support": 1781.0
+    },
+    "Administrative rights": {
+      "precision": 0.7333,
+      "recall": 0.825,
+      "f1-score": 0.7765,
+      "support": 440.0
+    },
+    "HR Support": {
+      "precision": 0.8835,
+      "recall": 0.8641,
+      "f1-score": 0.8737,
+      "support": 2729.0
+    },
+    "Hardware": {
+      "precision": 0.8617,
+      "recall": 0.8396,
+      "f1-score": 0.8505,
+      "support": 3405.0
+    },
+    "Internal Project": {
+      "precision": 0.8419,
+      "recall": 0.8943,
+      "f1-score": 0.8673,
+      "support": 530.0
+    },
+    "Miscellaneous": {
+      "precision": 0.8106,
+      "recall": 0.8584,
+      "f1-score": 0.8338,
+      "support": 1765.0
+    },
+    "Purchase": {
+      "precision": 0.9458,
+      "recall": 0.9058,
+      "f1-score": 0.9254,
+      "support": 616.0
+    },
+    "Storage": {
+      "precision": 0.8977,
+      "recall": 0.9107,
+      "f1-score": 0.9041,
+      "support": 694.0
+    }
+  },
+  "matriz_confusao": {
+    "labels": [
+      "Access",
+      "Administrative rights",
+      "HR Support",
+      "Hardware",
+      "Internal Project",
+      "Miscellaneous",
+      "Purchase",
+      "Storage"
+    ],
+    "matriz": [
+      [
+        1574,
+        22,
+        39,
+        69,
+        16,
+        49,
+        2,
+        10
+      ],
+      [
+        5,
+        363,
+        6,
+        57,
+        1,
+        7,
+        0,
+        1
+      ],
+      [
+        47,
+        12,
+        2358,
+        153,
+        29,
+        103,
+        5,
+        22
+      ],
+      [
+        89,
+        79,
+        150,
+        2859,
+        23,
+        161,
+        22,
+        22
+      ],
+      [
+        2,
+        2,
+        17,
+        20,
+        474,
+        14,
+        0,
+        1
+      ],
+      [
+        28,
+        8,
+        75,
+        103,
+        19,
+        1515,
+        3,
+        14
+      ],
+      [
+        3,
+        5,
+        7,
+        31,
+        1,
+        9,
+        558,
+        2
+      ],
+      [
+        4,
+        4,
+        17,
+        26,
+        0,
+        11,
+        0,
+        632
+      ]
+    ]
+  },
+  "confusoes_mais_frequentes": [
+    {
+      "real": "Hardware",
+      "previsto": "Miscellaneous",
+      "n": 161,
+      "pct_da_classe_real": 4.73
+    },
+    {
+      "real": "HR Support",
+      "previsto": "Hardware",
+      "n": 153,
+      "pct_da_classe_real": 5.61
+    },
+    {
+      "real": "Hardware",
+      "previsto": "HR Support",
+      "n": 150,
+      "pct_da_classe_real": 4.41
+    },
+    {
+      "real": "HR Support",
+      "previsto": "Miscellaneous",
+      "n": 103,
+      "pct_da_classe_real": 3.77
+    },
+    {
+      "real": "Miscellaneous",
+      "previsto": "Hardware",
+      "n": 103,
+      "pct_da_classe_real": 5.84
+    },
+    {
+      "real": "Hardware",
+      "previsto": "Access",
+      "n": 89,
+      "pct_da_classe_real": 2.61
+    },
+    {
+      "real": "Hardware",
+      "previsto": "Administrative rights",
+      "n": 79,
+      "pct_da_classe_real": 2.32
+    },
+    {
+      "real": "Miscellaneous",
+      "previsto": "HR Support",
+      "n": 75,
+      "pct_da_classe_real": 4.25
+    },
+    {
+      "real": "Access",
+      "previsto": "Hardware",
+      "n": 69,
+      "pct_da_classe_real": 3.87
+    },
+    {
+      "real": "Administrative rights",
+      "previsto": "Hardware",
+      "n": 57,
+      "pct_da_classe_real": 12.95
+    }
+  ],
+  "classes_frageis_recall_abaixo_70": []
+}
