@@ -1,0 +1,128 @@
+{
+  "dataset_1": {
+    "arquivo": "customer_support_tickets.csv",
+    "testes": [
+      {
+        "nome": "Placeholders nao substituidos no texto",
+        "pct_descricoes_com_placeholder": 100.0,
+        "n_descricoes": 8469,
+        "templates_unicos_apos_normalizar": 8077,
+        "esperado_se_real": "0% de placeholders",
+        "veredito": "SINTETICO"
+      },
+      {
+        "nome": "Janela temporal de todos os timestamps",
+        "inicio": "2023-05-31 21:53:30",
+        "fim": "2023-06-02 00:55:33",
+        "amplitude_horas": 27.03,
+        "n_tickets": 8469,
+        "esperado_se_real": "meses ou anos de amplitude",
+        "veredito": "SINTETICO"
+      },
+      {
+        "nome": "Resolucao anterior a primeira resposta (impossivel)",
+        "n_pares_validos": 2769,
+        "n_negativos": 1365,
+        "pct_negativos": 49.3,
+        "delta_medio_horas": -0.0577,
+        "esperado_se_real": "0% negativos e delta medio positivo",
+        "veredito": "SINTETICO"
+      },
+      {
+        "nome": "Uniformidade da distribuicao de CSAT",
+        "contagem_por_nota": {
+          "1.0": 553,
+          "2.0": 549,
+          "3.0": 580,
+          "4.0": 543,
+          "5.0": 544
+        },
+        "chi2_vs_uniforme": 1.6663,
+        "p_valor": 0.7968,
+        "interpretacao": "p alto = indistinguivel de sorteio uniforme",
+        "esperado_se_real": "p < 0.05 (distribuicao enviesada)",
+        "veredito": "SINTETICO"
+      },
+      {
+        "nome": "Ausencia de sinal entre variaveis operacionais e CSAT",
+        "pearson_csat_x_tempo_resolucao": {
+          "r": 0.0199,
+          "p": 0.2958,
+          "n": 2769
+        },
+        "anova_csat_por_canal": {
+          "F": 1.2808,
+          "p": 0.2792
+        },
+        "qui_quadrado_independencia": {
+          "Ticket Channel x Ticket Priority": {
+            "chi2": 15.48,
+            "p": 0.0785
+          },
+          "Ticket Type x Ticket Priority": {
+            "chi2": 10.63,
+            "p": 0.5613
+          },
+          "Ticket Channel x Ticket Type": {
+            "chi2": 11.85,
+            "p": 0.4578
+          }
+        },
+        "csat_medio_por_canal": {
+          "Chat": 3.0831,
+          "Email": 2.9639,
+          "Phone": 2.9522,
+          "Social media": 2.9693
+        },
+        "amplitude_csat_medio": 0.1308,
+        "esperado_se_real": "ao menos uma associacao significativa (p < 0.05)",
+        "veredito": "SINTETICO"
+      },
+      {
+        "nome": "Completude e composicao do backlog",
+        "n_registros": 8469,
+        "n_registros_prometido_no_brief": 30000,
+        "divergencia_vs_brief": 21531,
+        "campos_com_nulos": {
+          "Resolution": 5700,
+          "First Response Time": 2819,
+          "Time to Resolution": 5700,
+          "Customer Satisfaction Rating": 5700
+        },
+        "tickets_fechados": 2769,
+        "pct_nunca_fechados": 67.3,
+        "observacao": "Resolution, Time to Resolution e CSAT tem exatamente o mesmo numero de nulos: so existem para tickets Closed.",
+        "veredito": "ESTRUTURAL_APROVEITAVEL"
+      }
+    ],
+    "n_testes_condenatorios": 5,
+    "conclusao": "Metricas operacionais (tempos, CSAT) sao ruido aleatorio. Campos estruturais (canal, tipo, produto, status) sao aproveitaveis para analise de composicao."
+  },
+  "dataset_2": {
+    "nome": "Perfil de qualidade do Dataset 2",
+    "n_registros": 47837,
+    "n_registros_prometido_no_brief": 48000,
+    "n_classes": 8,
+    "distribuicao_classes": {
+      "Hardware": 13617,
+      "HR Support": 10915,
+      "Access": 7125,
+      "Miscellaneous": 7060,
+      "Storage": 2777,
+      "Purchase": 2464,
+      "Internal Project": 2119,
+      "Administrative rights": 1760
+    },
+    "razao_desbalanceamento": 7.74,
+    "pct_com_placeholder": 0.0,
+    "duplicatas_exatas": 0,
+    "palavras_por_ticket": {
+      "media": 43.6,
+      "mediana": 26.0,
+      "p25": 17.0,
+      "p75": 46.0,
+      "max": 981
+    },
+    "veredito": "REAL_UTILIZAVEL"
+  }
+}
