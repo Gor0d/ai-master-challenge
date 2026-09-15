@@ -30,7 +30,12 @@ Ataquei o problema em quatro movimentos, nesta ordem deliberada:
 
 ### Resultados / Findings
 
-**Documentos, na ordem de leitura:**
+**Relatório consolidado em PDF** (capa, sumário, arquitetura e fluxo de decisão em diagrama):
+[`solution/relatorio/Relatorio_Redesign_Suporte_Emerson_Guimaraes.pdf`](solution/relatorio/Relatorio_Redesign_Suporte_Emerson_Guimaraes.pdf)
+— reune os três documentos abaixo em 20 páginas. Regenerável com
+`python solution/relatorio/build_pdf.py` (usa Edge/Chrome headless, sem dependências pesadas).
+
+**Documentos-fonte, na ordem de leitura:**
 
 | # | Documento | Conteúdo |
 |---|---|---|
@@ -161,6 +166,8 @@ submissions/emerson-guimaraes/
 │   ├── app/app.py                          protótipo Streamlit
 │   ├── outputs/                            JSONs + modelo treinado
 │   ├── relatorio/
+│   │   ├── Relatorio_Redesign_Suporte_Emerson_Guimaraes.pdf  ← consolidado
+│   │   ├── build_pdf.py
 │   │   ├── 01_diagnostico_operacional.md
 │   │   ├── 02_proposta_automacao.md
 │   │   └── 03_anexo_auditoria_dados.md

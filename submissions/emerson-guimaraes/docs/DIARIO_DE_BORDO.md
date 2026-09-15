@@ -121,6 +121,34 @@ Denunciar o dataset é a maior aposta desta submissão. Se o avaliador esperar o
 
 ---
 
+### Etapa 10 — Auditoria de qualidade e PDF consolidado
+
+Pedido do usuário: auditar o que foi entregue e converter os markdowns em
+um PDF apresentável, com diagramas de arquitetura.
+
+**Auditoria de qualidade:** pipeline reexecutado do zero (outputs apagados
+e regerados) — números idênticos. Links internos, cobertura de
+`requirements.txt` e consistência numérica entre os 4 documentos
+conferidos por script, não de memória. Sinais de formatação (moeda,
+R², χ², sinal de menos tipográfico) auditados por regex — nenhuma
+inconsistência real (uma falsa suspeita de mojibake era artefato do
+terminal, não do arquivo).
+
+**PDF consolidado:** WeasyPrint foi descartado por depender de
+bibliotecas GTK nativas ausentes no Windows. Caminho adotado: HTML com
+CSS de impressão + diagramas SVG inline, renderizado via **Edge headless**
+(`msedge --headless=new --print-to-pdf`), que já vem instalado no Windows
+e não exige nenhuma dependência nova pesada.
+
+**Bug capturado na primeira renderização:** o diagrama de arquitetura
+apareceu como texto literal `{DIAGRAMA_ARQUITETURA}` na página — a função
+que monta o sumário executivo usava string tripla comum, não f-string.
+Corrigido com placeholder + `.replace()` explícito, e a segunda
+renderização foi inspecionada página a página (20 páginas, via PyMuPDF)
+antes de aceitar o resultado. Também corrigidos no mesmo ciclo: título da
+capa ilegível (herdava cor escura do body) e zebra-striping da tabela
+global vazando para dentro da capa azul.
+
 ## O que ficou de fora, e por quê
 
 - **Transformer/LLM como classificador.** Com o texto já lematizado e sem stopwords, o ganho sobre TF-IDF tende a ser pequeno, e o custo por chamada é permanente. Deveria ser testado antes de uma decisão definitiva de arquitetura — não foi, e está declarado nas limitações.
