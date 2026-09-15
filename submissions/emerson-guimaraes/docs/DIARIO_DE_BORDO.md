@@ -170,6 +170,22 @@ Três correções pontuais pedidas pelo usuário, após aprovação dos testes d
 
 ---
 
+### Etapa 15 — Fechando os últimos três pontos: modelo commitado, comparação explícita, ROI ampliado
+
+O usuário pediu nota para a entrega (8,5/10 na minha avaliação honesta) e depois "vamos fazer o serviço completo" para subir essa nota. Três ações, nesta ordem de execução:
+
+**1. Modelo treinado passou a ser versionado.** Até aqui `modelo_triagem.joblib` ficava fora do git (regra local no `.gitignore` da pasta), exigindo rodar `03_classificador.py` antes do `streamlit run`. Isso é fricção desnecessária para um avaliador que só quer clicar e ver funcionando — troquei a prioridade (reprodutibilidade documentada continua disponível como opção) por "clona e roda direto".
+
+**2. Comparação lado a lado com o que uma IA sem verificação responderia.** A seção B do diagnóstico ganhou uma tabela de três linhas contrastando afirmações plausíveis-mas-falsas que um LLM geraria colando o brief cru ("tickets críticos via telefone...") com o teste estatístico real que as invalida. Isso estava implícito antes; agora é impossível de não notar, e ataca de frente o critério #1 do brief ("usou ambos os datasets... o poder está no cruzamento" e "superar o baseline de IA").
+
+**3. Tentativa honesta de melhorar a acurácia do classificador, e ROI ampliado com um resultado real.** Testei 4 variações do TF-IDF (n-gramas de caractere, LinearSVC, vocabulário maior) — nenhuma superou a configuração atual de forma significativa (86,20%–86,40%, contra 86,40% já em produção). Não troquei o modelo: mudança sem ganho real seria movimento por aparência, não por mérito. Documentei a diligência em uma linha na proposta.
+
+Só depois veio a mudança que efetivamente melhorou o número: adicionei ao ROI o tempo poupado nos tickets que **não** são automatizados, porque chegam ao humano com categoria sugerida em vez de do zero (premissa nova, conservadora: 1,5 min/ticket, contra os 4 min de triagem manual completa). Isso não era um ajuste de maquiagem — é um ganho real que a proposta já descrevia (item 1.2, "sugestão de categoria para o agente") mas que o cálculo financeiro não capturava. Resultado: economia recomendada subiu de R$ 50.009 para **R$ 63.472/ano** (30k tickets), e o payback caiu de 3,4 para **2,6 meses**. Propaguei os números novos para os 4 lugares onde apareciam (diagnóstico, proposta, README, calculadora do app) e revalidei que reproduzem do zero.
+
+**O que não fiz:** não reescrevi os números antigos nas entradas anteriores deste diário (Etapa 11, por exemplo, ainda cita "R$ 50.009" e "3,4 meses"). Esses valores eram corretos no momento em que foram escritos — reescrever o passado do diário para bater com o presente destruiria a única coisa que dá credibilidade a um diário: ele registra o que aconteceu, não o que é verdade agora.
+
+---
+
 ## Gaps e riscos em aberto
 
 | # | Item | Natureza | Status |

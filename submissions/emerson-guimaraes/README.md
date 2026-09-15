@@ -10,7 +10,9 @@
 
 ## Executive Summary
 
-Auditei os dois datasets antes de analisar qualquer coisa, e descobri que o **Dataset 1 foi inteiramente gerado por biblioteca de dados falsos** — 8 de 9 testes estatísticos o condenam, incluindo 100% dos e-mails em domínios reservados da RFC 2606 e um campo de "resolução do agente" que é salada de palavras. Isso significa que duas das três perguntas do diagnóstico (gargalos e drivers de satisfação) **não têm resposta verdadeira** nos dados fornecidos, e eu reporto isso com os testes que provam, em vez de inventar números. A terceira pergunta tem resposta e vale dinheiro: **R$ 90.000/ano gastos em triagem manual** (projeção para os 30 mil tickets/ano citados no brief; R$ 25.407/ano sobre os 8.469 tickets efetivamente entregues). Construí então um classificador sobre os 47.837 tickets **reais** do Dataset 2 que atinge **86,4% de acurácia** e, calibrado a um limiar de confiança de 0,80, **roteia sozinho 60,11% dos tickets com 97,48% de acerto** — recuperando **R$ 50.009/ano (0,57 FTE)**, já descontado o retrabalho dos próprios erros, com **payback estimado em ~3,4 meses**. A economia é sensível à premissa de custo/hora do agente (varia de R$ 33 mil a R$ 66 mil entre R$ 30/h e R$ 60/h) — a calculadora do protótipo recalcula com o número real da operação. A recomendação principal é implantar a triagem automática em fases, começando por uma fase de sombra sem custo de integração, mantendo decisões de privilégio e de gasto obrigatoriamente com humanos.
+> **Duas das três perguntas do diagnóstico têm como resposta "os dados não sustentam isso" — e essa é a resposta certa, não uma fuga do escopo.** É a diferença entre este relatório e o que qualquer IA responde ao colar o brief sem verificar primeiro. Comparação lado a lado na [seção B do diagnóstico](solution/relatorio/01_diagnostico_operacional.md#por-que-isto-importa-mais-do-que-uma-resposta-inventada).
+
+Auditei os dois datasets antes de analisar qualquer coisa, e descobri que o **Dataset 1 foi inteiramente gerado por biblioteca de dados falsos** — 8 de 9 testes estatísticos o condenam, incluindo 100% dos e-mails em domínios reservados da RFC 2606 e um campo de "resolução do agente" que é salada de palavras. Isso significa que duas das três perguntas do diagnóstico (gargalos e drivers de satisfação) **não têm resposta verdadeira** nos dados fornecidos, e eu reporto isso com os testes que provam, em vez de inventar números. A terceira pergunta tem resposta e vale dinheiro: **R$ 90.000/ano gastos em triagem manual** (projeção para os 30 mil tickets/ano citados no brief; R$ 25.407/ano sobre os 8.469 tickets efetivamente entregues). Construí então um classificador sobre os 47.837 tickets **reais** do Dataset 2 que atinge **86,4% de acurácia** e, calibrado a um limiar de confiança de 0,80, **roteia sozinho 60,11% dos tickets com 97,48% de acerto** — recuperando **R$ 63.472/ano (0,71 FTE)**, já descontado o retrabalho dos próprios erros e somado o tempo poupado nos tickets que ainda vão para humano (chegam com sugestão pronta), com **payback estimado em ~2,6 meses**. A economia é sensível à premissa de custo/hora do agente (varia de R$ 42 mil a R$ 85 mil entre R$ 30/h e R$ 60/h) — a calculadora do protótipo recalcula com o número real da operação. A recomendação principal é implantar a triagem automática em fases, começando por uma fase de sombra sem custo de integração, mantendo decisões de privilégio e de gasto obrigatoriamente com humanos.
 
 ---
 
@@ -54,9 +56,9 @@ Ataquei o problema em quatro movimentos, nesta ordem deliberada:
 | Classificador funciona | **86,40%** de acurácia vs 28,47% do baseline (+57,93 p.p.), F1 macro 0,865 |
 | TF-IDF venceu embeddings e zero-shot, testado | 86,40% vs. 78,07% (embeddings) vs. **23,75%** (zero-shot, abaixo do baseline) — mesmo split de teste |
 | Automação viável e medida | limiar 0,80 → **60,11%** de cobertura a **97,48%** de acurácia |
-| Ganho financeiro | **R$ 50.009/ano** líquidos (0,57 FTE) — projeção p/ 30 mil tickets; R$ 14.118 sobre os 8.469 tickets reais entregues |
-| Payback do investimento | ≈ **3,4 meses** (integração estimada em R$ 12.000; fase de sombra custa R$ 0) |
-| Sensibilidade ao custo/hora | economia recomendada varia de **R$ 33.339** (R$ 30/h) a **R$ 66.679** (R$ 60/h) — R$ 45/h é benchmark, não a folha real da operação |
+| Ganho financeiro | **R$ 63.472/ano** líquidos (0,71 FTE) — projeção p/ 30 mil tickets; R$ 17.918 sobre os 8.469 tickets reais entregues |
+| Payback do investimento | ≈ **2,6 meses** (integração estimada em R$ 12.000; fase de sombra custa R$ 0) |
+| Sensibilidade ao custo/hora | economia recomendada varia de **R$ 42.315** (R$ 30/h) a **R$ 84.629** (R$ 60/h) — R$ 45/h é benchmark, não a folha real da operação |
 
 ### Recomendações
 
@@ -73,7 +75,7 @@ Por ordem de prioridade:
 - O classificador foi treinado em tickets de **TI corporativo em inglês**, já lematizados e sem stopwords. Aplicado a chamados em português ou de outro domínio, a acurácia cai — a fase de sombra existe para medir isso.
 - A **taxonomia de 8 categorias veio do dataset**, não de uma operação real. Se as filas forem outras, é preciso retreinar com os rótulos certos.
 - Os **rótulos de treino têm ruído**; os 86,4% provavelmente subestimam o desempenho com taxonomia limpa.
-- O **ROI depende de premissas de tempo por tarefa** (4 min de triagem, 12 min de retrabalho). São benchmarks, não medições da operação. Todas editáveis no protótipo.
+- O **ROI depende de premissas de tempo por tarefa** (4 min de triagem, 12 min de retrabalho, 1,5 min de economia por sugestão). São benchmarks, não medições da operação. Todas editáveis no protótipo.
 - **Testei transformers/embeddings/zero-shot contra o TF-IDF, no mesmo split de teste** (`solution/scripts/04_embeddings_zeroshot.py`) — e o TF-IDF venceu de forma decisiva (86,40% vs. 78,07% dos embeddings vs. 23,75% do zero-shot, este último abaixo até do baseline de 28,47%). A causa está identificada: o texto do Dataset 2 é pré-lematizado e sem stopwords, formato que favorece contagem de termos e prejudica modelos que dependem de linguagem natural fluente (entailment). Detalhe completo na [Proposta de Automação](solution/relatorio/02_proposta_automacao.md#111-por-que-tf-idf-e-não-embeddings-ou-zero-shot).
 
 ---
@@ -85,9 +87,10 @@ Por ordem de prioridade:
 ```bash
 cd submissions/emerson-guimaraes/solution
 pip install -r requirements.txt
-python scripts/03_classificador.py     # treina e salva o modelo (~1 min)
 streamlit run app/app.py
 ```
+
+O modelo treinado já vem versionado (`solution/outputs/modelo_triagem.joblib`) — não precisa rodar o treino antes. Se preferir treinar do zero (ex.: para conferir a reprodução), rode `python scripts/03_classificador.py` antes do `streamlit run`.
 
 Três telas:
 

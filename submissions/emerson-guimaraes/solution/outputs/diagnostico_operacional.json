@@ -174,6 +174,7 @@
       "custo_hora_agente_brl": 45.0,
       "minutos_triagem_manual": 4.0,
       "minutos_por_ticket_retrabalho": 12.0,
+      "minutos_economia_sugestao_humano": 1.5,
       "jornada_horas_mes": 168,
       "fonte_premissas": "Benchmarks de mercado para suporte N1 no Brasil. Devem ser substituidos pelos numeros reais da operacao antes de qualquer decisao de investimento."
     },
@@ -187,10 +188,12 @@
         "acuracia_no_automatizado_pct": 98.77,
         "horas_brutas_liberadas_ano": 268.2,
         "horas_perdidas_em_retrabalho_ano": 9.9,
-        "horas_liquidas_ano": 258.3,
-        "horas_liquidas_mes": 21.5,
-        "economia_liquida_brl_ano": 11625.45,
-        "equivalente_fte": 0.13
+        "horas_liquidas_automacao_ano": 258.3,
+        "horas_assistidas_ano": 111.1,
+        "horas_liquidas_ano": 369.5,
+        "horas_liquidas_mes": 30.8,
+        "economia_liquida_brl_ano": 16626.5,
+        "equivalente_fte": 0.18
       },
       "recomendado": {
         "limiar_confianca": 0.8,
@@ -198,10 +201,12 @@
         "acuracia_no_automatizado_pct": 97.48,
         "horas_brutas_liberadas_ano": 339.4,
         "horas_perdidas_em_retrabalho_ano": 25.7,
-        "horas_liquidas_ano": 313.7,
-        "horas_liquidas_mes": 26.1,
-        "economia_liquida_brl_ano": 14117.57,
-        "equivalente_fte": 0.16
+        "horas_liquidas_automacao_ano": 313.7,
+        "horas_assistidas_ano": 84.5,
+        "horas_liquidas_ano": 398.2,
+        "horas_liquidas_mes": 33.2,
+        "economia_liquida_brl_ano": 17918.14,
+        "equivalente_fte": 0.2
       },
       "agressivo": {
         "limiar_confianca": 0.7,
@@ -209,48 +214,50 @@
         "acuracia_no_automatizado_pct": 95.91,
         "horas_brutas_liberadas_ano": 393.4,
         "horas_perdidas_em_retrabalho_ano": 48.3,
-        "horas_liquidas_ano": 345.1,
-        "horas_liquidas_mes": 28.8,
-        "economia_liquida_brl_ano": 15529.14,
-        "equivalente_fte": 0.17
+        "horas_liquidas_automacao_ano": 345.1,
+        "horas_assistidas_ano": 64.2,
+        "horas_liquidas_ano": 409.3,
+        "horas_liquidas_mes": 34.1,
+        "economia_liquida_brl_ano": 18418.87,
+        "equivalente_fte": 0.2
       }
     },
     "projecao_30k_tickets_ano": {
       "conservador": {
-        "horas_liquidas_ano": 915.0,
-        "economia_liquida_brl_ano": 41181.19,
-        "equivalente_fte": 0.46
+        "horas_liquidas_ano": 1308.9,
+        "economia_liquida_brl_ano": 58896.56,
+        "equivalente_fte": 0.64
       },
       "recomendado": {
-        "horas_liquidas_ano": 1111.2,
-        "economia_liquida_brl_ano": 50009.1,
-        "equivalente_fte": 0.57
+        "horas_liquidas_ano": 1410.6,
+        "economia_liquida_brl_ano": 63471.98,
+        "equivalente_fte": 0.71
       },
       "agressivo": {
-        "horas_liquidas_ano": 1222.5,
-        "economia_liquida_brl_ano": 55009.35,
-        "equivalente_fte": 0.6
+        "horas_liquidas_ano": 1449.9,
+        "economia_liquida_brl_ano": 65245.73,
+        "equivalente_fte": 0.71
       }
     },
-    "nota_metodologica": "Volume (fato) x tempo por tarefa (premissa) x cobertura MEDIDA do classificador do script 03. Nao usa os campos de tempo do Dataset 1, que falharam na auditoria. O ganho e liquido: desconta o retrabalho gerado pelos proprios erros do modelo. Projecao para 30.000 tickets/ano usa fator 3.54."
+    "nota_metodologica": "Volume (fato) x tempo por tarefa (premissa) x cobertura MEDIDA do classificador do script 03. Nao usa os campos de tempo do Dataset 1, que falharam na auditoria. O ganho e liquido: desconta o retrabalho gerado pelos proprios erros do modelo. Inclui tambem o ganho parcial nos tickets NAO automatizados (chegam ao humano com categoria sugerida, nao do zero) - 1.5 min/ticket, uma fracao pequena e conservadora dos 4 min de triagem manual. Projecao para 30.000 tickets/ano usa fator 3.54."
   },
   "d_sensibilidade_custo_hora": {
     "premissa_base_brl_hora": 45.0,
     "economia_recomendada_por_valor_hora": {
       "R$ 30/h": {
-        "conservador": 27454.13,
-        "recomendado": 33339.4,
-        "agressivo": 36672.9
+        "conservador": 39264.37,
+        "recomendado": 42314.65,
+        "agressivo": 43497.15
       },
       "R$ 45/h": {
-        "conservador": 41181.19,
-        "recomendado": 50009.1,
-        "agressivo": 55009.35
+        "conservador": 58896.56,
+        "recomendado": 63471.98,
+        "agressivo": 65245.73
       },
       "R$ 60/h": {
-        "conservador": 54908.25,
-        "recomendado": 66678.8,
-        "agressivo": 73345.8
+        "conservador": 78528.75,
+        "recomendado": 84629.31,
+        "agressivo": 86994.31
       }
     },
     "nota": "Escala linear: dobrar o custo/hora dobra a economia. Use o numero real da operacao, nao o benchmark, antes de decidir investimento."
@@ -262,8 +269,8 @@
       "retreino_mensal_recorrente_brl_mes": 600.0
     },
     "nota_metodologica": "Estimativas de esforco de engenharia, nao orcamento medido. Ajustar ao custo real de TI/dados da operacao antes de aprovar.",
-    "economia_liquida_mensal_apos_manutencao_brl": 3567.43,
-    "payback_meses": 3.4,
-    "leitura": "Com integracao estimada em R$ 12.000 e manutencao de R$ 600/mes. o investimento se paga em ~3.4 meses no cenario recomendado. A fase de sombra (2-4 semanas) nao tem custo de integracao. porque valida a acuracia antes de qualquer investimento em deploy."
+    "economia_liquida_mensal_apos_manutencao_brl": 4689.33,
+    "payback_meses": 2.6,
+    "leitura": "Com integracao estimada em R$ 12.000 e manutencao de R$ 600/mes. o investimento se paga em ~2.6 meses no cenario recomendado. A fase de sombra (2-4 semanas) nao tem custo de integracao. porque valida a acuracia antes de qualquer investimento em deploy."
   }
 }

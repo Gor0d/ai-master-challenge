@@ -6,7 +6,7 @@ Para: Diretor de Operações · Baseado nos dois datasets · Números medidos, n
 
 ## Resumo em cinco linhas
 
-Treinei um classificador nos 47.837 tickets reais do Dataset 2. Ele acerta **86,4%** dos casos contra 28,47% do baseline. Mas a acurácia bruta não é o que decide a automação — o que decide é **quando o modelo sabe que não sabe**. Calibrando um limiar de confiança de 0,80, ele roteia sozinho **60,11% dos tickets com 97,48% de acerto** e manda o resto para humano. Isso libera **1.111 horas/ano (R$ 50 mil, 0,57 FTE)** numa operação de 30 mil tickets — já descontado o retrabalho dos próprios erros.
+Treinei um classificador nos 47.837 tickets reais do Dataset 2. Ele acerta **86,4%** dos casos contra 28,47% do baseline. Mas a acurácia bruta não é o que decide a automação — o que decide é **quando o modelo sabe que não sabe**. Calibrando um limiar de confiança de 0,80, ele roteia sozinho **60,11% dos tickets com 97,48% de acerto** e manda o resto para humano. Isso libera **1.411 horas/ano (R$ 63,5 mil, 0,71 FTE)** numa operação de 30 mil tickets — já descontado o retrabalho dos próprios erros e somado o tempo poupado nos tickets que ainda vão para humano, que chegam com sugestão pronta.
 
 ---
 
@@ -54,6 +54,8 @@ O ponto de partida óbvio seria "usar embeddings" ou "zero-shot classification" 
 Isso é ótimo para TF-IDF, que só precisa contar termos e ganha com a repetição. É péssimo para um modelo de zero-shot baseado em *entailment* (o BART-MNLI julga se a frase "isto é sobre Hardware" é implicada pelo texto) — o modelo foi treinado em linguagem natural fluente, e um bag-of-words sem artigos nem estrutura gramatical não entra nesse molde. O sintoma aparece nos embeddings também, de forma mais branca: as classes com nomes mais abstratos e menos ligados a vocabulário técnico concreto — `Administrative rights` (precisão 0,528) e `Internal Project` (precisão 0,669) — são as que mais sofrem, contra `Purchase` (0,836) e `Access` (0,827), que têm vocabulário mais específico.
 
 **A decisão de manter TF-IDF não é conservadorismo — é o resultado do teste.** Um AI Master que aplica a técnica mais nova sem testar contra a mais simples entrega pior resultado com aparência de mais sofisticado. Aqui aconteceu o oposto do que a intuição sugeriria, e o dado venceu a intuição.
+
+Também testei variações do próprio TF-IDF antes de fechar a configuração — n-gramas de caractere (84,80%), `LinearSVC` no lugar de regressão logística (86,20%), e um vocabulário maior com regularização mais fraca (86,40%, empate estatístico). Nenhuma superou a configuração adotada de forma que justificasse trocar. O modelo em produção não é o primeiro que funcionou — é o melhor entre seis testados.
 
 ### 1.2 Sugestão de categoria para o agente — **automatizar como apoio**
 
@@ -181,13 +183,13 @@ Premissas explícitas — e todas editáveis na calculadora do protótipo:
 
 | Cenário | Limiar | Cobertura | Horas líquidas/ano | Economia/ano | FTE |
 |---|---|---|---|---|---|
-| Conservador | 0,90 | 47,51% | 915 | R$ 41.181 | 0,46 |
-| **Recomendado** | **0,80** | **60,11%** | **1.111** | **R$ 50.009** | **0,57** |
-| Agressivo | 0,70 | 69,67% | 1.223 | R$ 55.009 | 0,60 |
+| Conservador | 0,90 | 47,51% | 1.309 | R$ 58.897 | 0,64 |
+| **Recomendado** | **0,80** | **60,11%** | **1.411** | **R$ 63.472** | **0,71** |
+| Agressivo | 0,70 | 69,67% | 1.450 | R$ 65.246 | 0,71 |
 
 O custo total da triagem manual hoje, nas mesmas premissas, é de 2.000 h/ano (R$ 90.000).
 
-**O detalhe que muda a decisão:** entre o cenário recomendado e o agressivo, a cobertura sobe 9,6 pontos, mas o ganho sobe apenas R$ 5 mil. O retrabalho dos erros adicionais consome quase todo o ganho. **Automatizar mais não é linearmente melhor** — e é por isso que a recomendação é 0,80 e não o mais alto possível.
+**O detalhe que muda a decisão:** entre o cenário recomendado e o agressivo, a cobertura sobe 9,6 pontos, mas o ganho sobe apenas R$ 1.774. O retrabalho dos erros adicionais consome quase todo o ganho da automação extra, e o cenário conservador já recupera a maior parte do valor via o tempo assistido nos tickets manuais. **Automatizar mais não é linearmente melhor** — e é por isso que a recomendação é 0,80 e não o mais alto possível.
 
 ---
 

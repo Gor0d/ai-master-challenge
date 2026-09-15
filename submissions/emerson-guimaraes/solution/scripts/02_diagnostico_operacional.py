@@ -37,6 +37,10 @@ PREMISSAS = {
     "custo_hora_agente_brl": 45.00,      # salario + encargos + infra
     "minutos_triagem_manual": 4.0,       # ler, categorizar, rotear
     "minutos_por_ticket_retrabalho": 12.0,  # custo de um roteamento errado
+    "minutos_economia_sugestao_humano": 1.5,  # tempo poupado no ticket que
+        # vai para humano mas chega com categoria sugerida + termos-chave -
+        # nao e o tempo de triagem inteiro (4 min), so a fracao que a
+        # sugestao do modelo substitui: ler o resumo em vez do ticket cru
     "jornada_horas_mes": 168,
     "fonte_premissas": ("Benchmarks de mercado para suporte N1 no Brasil. "
                         "Devem ser substituidos pelos numeros reais da "
@@ -216,13 +220,23 @@ def desperdicio(d):
             taxa_erro = 1 - r["acuracia_no_aceito_pct"] / 100
             horas_retrabalho = (n_tickets * cobertura * taxa_erro
                                 * p["minutos_por_ticket_retrabalho"] / 60)
-            horas_liquidas = horas_brutas - horas_retrabalho
+            horas_liquidas_automacao = horas_brutas - horas_retrabalho
+
+            # os tickets que vao para humano tambem ganham tempo: chegam
+            # com categoria sugerida + termos-chave, nao do zero
+            n_para_humano = n_tickets * (1 - cobertura)
+            horas_assistidas = (n_para_humano
+                                * p["minutos_economia_sugestao_humano"] / 60)
+
+            horas_liquidas = horas_liquidas_automacao + horas_assistidas
             cenarios[nome] = {
                 "limiar_confianca": limiar,
                 "cobertura_medida_pct": r["cobertura_pct"],
                 "acuracia_no_automatizado_pct": r["acuracia_no_aceito_pct"],
                 "horas_brutas_liberadas_ano": round(horas_brutas, 1),
                 "horas_perdidas_em_retrabalho_ano": round(horas_retrabalho, 1),
+                "horas_liquidas_automacao_ano": round(horas_liquidas_automacao, 1),
+                "horas_assistidas_ano": round(horas_assistidas, 1),
                 "horas_liquidas_ano": round(horas_liquidas, 1),
                 "horas_liquidas_mes": round(horas_liquidas / 12, 1),
                 "economia_liquida_brl_ano": round(
@@ -253,6 +267,10 @@ def desperdicio(d):
             "do classificador do script 03. Nao usa os campos de tempo do "
             "Dataset 1, que falharam na auditoria. O ganho e liquido: "
             "desconta o retrabalho gerado pelos proprios erros do modelo. "
+            "Inclui tambem o ganho parcial nos tickets NAO automatizados "
+            "(chegam ao humano com categoria sugerida, nao do zero) - "
+            f"{p['minutos_economia_sugestao_humano']} min/ticket, uma "
+            "fracao pequena e conservadora dos 4 min de triagem manual. "
             f"Projecao para 30.000 tickets/ano usa fator {fator:.2f}."),
     }
 

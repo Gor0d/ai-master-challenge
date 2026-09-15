@@ -266,6 +266,10 @@ with aba3:
     min_retrabalho = c1.number_input("Minutos de retrabalho por erro",
                                      1.0, 120.0, 12.0, 1.0)
     jornada = c2.number_input("Horas/mes por FTE", 100, 220, 168, 4)
+    min_sugestao = c3.number_input(
+        "Min. economizados por sugestao (ticket manual)", 0.0, 10.0, 1.5, 0.5,
+        help="Tempo poupado no ticket que vai para humano mas chega com "
+             "categoria sugerida e termos-chave, em vez de partir do zero.")
 
     ponto = min(CURVA, key=lambda r: abs(r["limiar_confianca"] - limiar))
     cobertura = ponto["cobertura_pct"] / 100
@@ -274,7 +278,8 @@ with aba3:
     horas_totais = volume * min_triagem / 60
     horas_brutas = horas_totais * cobertura
     horas_retrab = volume * cobertura * taxa_erro * min_retrabalho / 60
-    horas_liq = horas_brutas - horas_retrab
+    horas_assistidas = volume * (1 - cobertura) * min_sugestao / 60
+    horas_liq = horas_brutas - horas_retrab + horas_assistidas
 
     st.divider()
     m1, m2, m3, m4 = st.columns(4)
@@ -282,7 +287,8 @@ with aba3:
               f"R$ {horas_totais * custo_hora:,.0f}/ano".replace(",", "."))
     m2.metric("Horas liquidas liberadas",
               f"{horas_liq:,.0f}/ano".replace(",", "."),
-              f"-{horas_retrab:,.0f}h de retrabalho".replace(",", "."))
+              f"-{horas_retrab:,.0f}h retrabalho +{horas_assistidas:,.0f}h assistidas"
+              .replace(",", "."))
     m3.metric("Economia liquida",
               f"R$ {horas_liq * custo_hora:,.0f}/ano".replace(",", "."))
     m4.metric("Equivalente", f"{horas_liq / 12 / jornada:.2f} FTE")
@@ -295,7 +301,8 @@ with aba3:
             continue
         cob = r["cobertura_pct"] / 100
         err = 1 - r["acuracia_no_aceito_pct"] / 100
-        hl = horas_totais * cob - volume * cob * err * min_retrabalho / 60
+        hl = (horas_totais * cob - volume * cob * err * min_retrabalho / 60
+              + volume * (1 - cob) * min_sugestao / 60)
         linhas.append({"limiar": r["limiar_confianca"],
                        "cobertura_%": r["cobertura_pct"],
                        "acuracia_%": r["acuracia_no_aceito_pct"],
