@@ -6,9 +6,34 @@ O relato completo está em dois lugares, ambos escritos **durante** o trabalho:
 |---|---|---|
 | **Narrativa escrita** | [`docs/DIARIO_DE_BORDO.md`](../docs/DIARIO_DE_BORDO.md) | Decisões, percalços, gaps abertos e as correções de rota, em ordem cronológica |
 | **Process log estruturado** | [`README.md`](../README.md#process-log--como-usei-ia) | Ferramentas, workflow, onde a IA errou, o que acrescentei |
+| **Screenshots cronológicos** | [`screenshots/`](screenshots/) | 15 capturas da sessão real com o Claude Code, do clone do repositório ao checklist final |
 | **Git history** | `git log --oneline` nesta branch | Evolução do raciocínio nas mensagens de commit |
 | **Código reproduzível** | [`../solution/scripts/`](../solution/scripts/) | Todo número da submissão sai daqui, executável de ponta a ponta |
 | **Saídas brutas** | [`../solution/outputs/`](../solution/outputs/) | JSONs com estatísticas e p-valores, para conferência independente |
+
+## Screenshots
+
+Capturas em sequência da sessão real de trabalho com o Claude Code — prompt, raciocínio e comandos executados, sem edição de conteúdo.
+
+| # | Arquivo | Momento |
+|---|---|---|
+| 1 | `01-inicio-clone-repositorio.png` | Clone do repositório e primeira leitura da estrutura |
+| 2 | `02-leitura-do-brief-e-escolha-do-desafio.png` | Resumo do case e escolha do Challenge 002 |
+| 3 | `03-plano-de-ataque-e-hipotese-inicial.png` | Plano de 5 fases e a hipótese inicial sobre o Dataset 1 |
+| 4 | `04-armadilha-gitignore-e-auditoria-iniciada.png` | Descoberta da armadilha do `.gitignore` + início da auditoria |
+| 5 | `05-descoberta-dataset1-sintetico-5-provas.png` | As primeiras 5 provas de que o Dataset 1 é sintético |
+| 6 | `06-retratacao-uniformidade-das-categoricas.png` | Retratação: teste de uniformidade derruba a hipótese estrutural |
+| 7 | `07-fechamento-fase1-laudo-e-diario.png` | Fechamento da Fase 1, laudo e diário entregues |
+| 8 | `08-redirecionamento-usuario-foco-no-brief.png` | Correção de rumo: focar nos 4 itens do brief, não só na auditoria |
+| 9 | `09-curva-cobertura-acuracia-classificador.png` | Resultado do classificador e curva cobertura × acurácia |
+| 10 | `10-roi-medido-e-inicio-do-prototipo.png` | ROI com cobertura medida + início do protótipo Streamlit |
+| 11 | `11-autocorrecao-exemplos-cherry-picked.png` | Autocorreção: exemplos escritos à mão trocados por tickets reais |
+| 12 | `12-validacao-prototipo-streamlit.png` | Validação de sintaxe e smoke-test do app |
+| 13 | `13-entrega-completa-4-itens-do-brief.png` | Entrega completa dos 4 itens do brief |
+| 14 | `14-tentativa-weasyprint-e-pivot-edge-headless.png` | WeasyPrint falha no Windows; pivô para Edge headless |
+| 15 | `15-auditoria-final-e-checklist-de-submissao.png` | Auditoria de qualidade final e checklist de submissão |
+
+**Nota de segurança:** as capturas 4 e 5 continham originalmente um token da API do Kaggle colado em texto puro durante a configuração do ambiente. A região foi redigida (coberta) antes da publicação — o restante do conteúdo de ambas as imagens não foi alterado. Por ter circulado em texto puro, esse token deve ser tratado como comprometido e revogado em kaggle.com/settings, independentemente da redação da imagem.
 
 ## Os três erros corrigidos durante o trabalho
 

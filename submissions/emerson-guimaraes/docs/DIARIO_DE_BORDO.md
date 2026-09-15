@@ -120,6 +120,20 @@ Pedi uma avaliação honesta do case contra os critérios de qualidade do brief,
 
 ---
 
+### Etapa 12 — Screenshots capturados, e um vazamento de token pego antes da publicação
+
+O usuário capturou 15 screenshots da sessão real (clone → escolha do desafio → auditoria → retratação → classificador → protótipo → checklist final) e pediu para organizá-los no process log.
+
+**Antes de copiar qualquer coisa, inspecionei as 15 uma a uma.** Duas delas (4 e 5) expunham o **token da API do Kaggle em texto puro** — a mesma mensagem que havia sido colada na sessão para autenticar. As outras 13 estavam limpas.
+
+**Correção:** redigi (cobri com retângulo preto) apenas a região do token nas duas imagens, preservando o resto do conteúdo — que é justamente onde aparecem as primeiras 5 provas do Faker, material valioso do process log. Conferi visualmente as duas redações antes de aceitar.
+
+**O que não fiz:** não afirmei no README que o token "já foi revogado" — eu não tenho como verificar isso. Errei essa frase duas vezes tentando adivinhar o tempo verbal certo antes de perceber que o correto era não afirmar um fato que não posso confirmar, e sim recomendar a ação ao usuário. A nota final no process log ficou como recomendação, não como declaração.
+
+Arquivos renomeados de `1.png`...`15.png` para nomes descritivos (`05-descoberta-dataset1-sintetico-5-provas.png` etc.) e indexados em `process-log/README.md` com uma linha por captura.
+
+---
+
 ## Gaps e riscos em aberto
 
 | # | Item | Natureza | Status |

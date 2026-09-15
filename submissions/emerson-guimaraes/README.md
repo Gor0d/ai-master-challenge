@@ -3,7 +3,7 @@
 ## Sobre mim
 
 - **Nome:** Emerson Guimarães
-- **LinkedIn:** _(preencher)_
+- **LinkedIn:** [linkedin.com/in/emersongsguimaraes](https://www.linkedin.com/in/emersongsguimaraes/?skipRedirect=true)
 - **Challenge escolhido:** 002 — Redesign de Suporte
 
 ---
@@ -146,11 +146,11 @@ Aproximadamente 20 ciclos de trabalho, com 4 commits temáticos. A auditoria soz
 
 ## Evidências
 
-- [x] **Git history** — 4+ commits temáticos com a evolução do raciocínio nas mensagens, incluindo o commit que registra a retratação
+- [x] **Git history** — 6+ commits temáticos com a evolução do raciocínio nas mensagens, incluindo o commit que registra a retratação
 - [x] **Narrativa escrita** — [Diário de Bordo](docs/DIARIO_DE_BORDO.md), escrito durante o trabalho e não reconstruído no fim
 - [x] **Código reproduzível** — todos os números desta submissão saem de `solution/scripts/`, executáveis de ponta a ponta
 - [x] **Saídas brutas versionadas** — JSONs em `solution/outputs/` para conferência independente
-- [ ] Screenshots das conversas com IA
+- [x] **Screenshots das conversas com IA** — 15 capturas cronológicas em [`process-log/screenshots/`](process-log/screenshots/), do clone do repositório ao checklist final. Duas delas tiveram um token de API redigido antes da publicação (ver nota no índice do process log)
 - [ ] Screen recording do workflow
 
 ---
