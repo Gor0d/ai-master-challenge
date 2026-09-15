@@ -26,7 +26,7 @@ SAIDA = AQUI.parents[1] / "outputs"
 RAIZ_REPO = AQUI.parents[5]
 DADOS = RAIZ_REPO / "datasets" / "raw"
 
-st.set_page_config(page_title="Mesa de Triagem", page_icon="🎫",
+st.set_page_config(page_title="Mesa de Triagem", page_icon=":material/inbox:",
                    layout="wide")
 
 
@@ -129,10 +129,10 @@ def termos_decisivos(texto, categoria, n=8):
 
 # ------------------------------------------------------------------ UI
 
-st.title("🎫 Mesa de Triagem")
+st.title("Mesa de Triagem")
 st.caption("Classificacao e roteamento automatico de tickets · modelo "
            f"treinado em {metricas['configuracao']['n_treino']:,} tickets reais "
-           f"· acuracia {metricas['desempenho_global']['acuracia_pct']}%"
+           f"· acuracia {metricas['desempenho_global']['acuracia_pct']}%."
            .replace(",", "."))
 
 with st.sidebar:
@@ -195,7 +195,7 @@ with aba1:
                 st.caption(
                     f"Historico desta categoria no teste: precisao "
                     f"{qualidade['precision']:.1%} · recall "
-                    f"{qualidade['recall']:.1%}")
+                    f"{qualidade['recall']:.1%}.")
         elif analisar:
             st.info("Cole o texto de um ticket.")
 
@@ -242,9 +242,9 @@ with aba2:
             c4.metric("Para humano", int((~auto).sum()))
             st.caption(
                 f"Dos {int((~auto).sum())} tickets para humano: "
-                f"{int(sensivel.sum())} por categoria sensível "
-                f"(Administrative rights/Purchase, qualquer confiança) e "
-                f"{int((~auto & ~sensivel).sum())} por confiança abaixo do limiar.")
+                f"{int(sensivel.sum())} por categoria sensivel "
+                f"(Administrative rights/Purchase, qualquer confianca) e "
+                f"{int((~auto & ~sensivel).sum())} por confianca abaixo do limiar.")
 
             st.dataframe(tabela, use_container_width=True, height=420)
 
