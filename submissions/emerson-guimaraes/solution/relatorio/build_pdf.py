@@ -206,25 +206,25 @@ def montar_sumario_executivo():
 <section class="pagina">
   <h1 class="pos-sumario"><span class="num">1</span> Sumário Executivo</h1>
   <div class="callout callout-chave">
-    <p>Auditei os dois datasets antes de analisar qualquer coisa, e descobri
-    que o <strong>Dataset 1 foi inteiramente gerado por biblioteca de dados
-    falsos</strong> — 8 de 9 testes estatísticos o condenam, incluindo 100%
-    dos e-mails em domínios reservados da RFC 2606 e um campo de "resolução
-    do agente" que é salada de palavras. Isso significa que duas das três
-    perguntas do diagnóstico não têm resposta verdadeira nos dados
-    fornecidos, e eu reporto isso com os testes que provam, em vez de
-    inventar números.</p>
-    <p>A terceira pergunta tem resposta e vale dinheiro:
-    <strong>R$ 90.000/ano gastos em triagem manual</strong> — projeção para
-    os 30 mil tickets/ano citados no brief; R$ 25.407/ano sobre os 8.469
-    tickets efetivamente entregues. Construí então um classificador sobre
-    os 47.837 tickets reais do Dataset 2 que atinge
-    <strong>86,4% de acurácia</strong> e, calibrado a um limiar de confiança
-    de 0,80, <strong>roteia sozinho 60,11% dos tickets com 97,48% de
-    acerto</strong> — recuperando <strong>R$ 63.472/ano (0,71 FTE)</strong>,
-    já descontado o retrabalho dos próprios erros e somado o tempo poupado
-    nos tickets que ainda vão para humano, que chegam com sugestão pronta.
-    Payback estimado em <strong>≈ 2,6 meses</strong>.</p>
+    <p>Construí um roteador de tickets que <strong>decide sozinho 60,11%
+    dos casos com 97,48% de acerto</strong> e sabe quando não sabe. Duas
+    categorias ficam <strong>sempre</strong> com humano — mesmo com 100% de
+    confiança — porque concessão de privilégio e decisão de gasto têm custo
+    de erro assimétrico, e otimizar acurácia média ignora isso.</p>
+    <p>Isso recupera <strong>R$ 63.472/ano (0,71 FTE)</strong> de um custo
+    de <strong>R$ 90.000/ano em triagem manual</strong> — projeção para os 30
+    mil tickets/ano citados no brief; R$ 25.407 e R$ 17.918 sobre os 8.469
+    tickets efetivamente entregues. O ganho é líquido: desconta o retrabalho
+    dos próprios erros do modelo e soma o tempo poupado nos tickets que ainda
+    vão para humano, que chegam com sugestão pronta. Payback estimado em
+    <strong>≈ 2,6 meses</strong>.</p>
+    <p>Nada disso usa os campos de tempo ou satisfação do Dataset 1:
+    <strong>auditei antes de usar e ele não passa</strong> — 8 de 9 testes o
+    condenam, incluindo 100% dos e-mails em domínios reservados da RFC 2606 e
+    todas as categóricas uniformes. Por isso o peso quantitativo está nos
+    47.837 tickets reais do Dataset 2, e as duas perguntas do diagnóstico que
+    esses dados não respondem vêm com o teste que prova, em vez de número
+    inventado.</p>
   </div>
 
   <h2>Números que sustentam a entrega</h2>
