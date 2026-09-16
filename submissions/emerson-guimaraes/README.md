@@ -116,7 +116,7 @@ Três telas:
 
 1. **Li o brief e escolhi o desafio** com um critério explícito: o 002 é o que tem maior superfície de julgamento humano. Desafios puramente analíticos são mais fáceis de a IA replicar sozinha — e o critério declarado do G4 é superar o baseline de IA.
 2. **Auditei os dados antes de qualquer análise.** Esta foi a decisão que definiu a submissão inteira. A hipótese inicial era suspeita moderada; virou certeza a cada teste.
-3. **Descartei minha própria hipótese intermediária** quando ela não sobreviveu ao teste (detalhes abaixo).
+3. **Cortei o escopo quando a auditoria começou a virar a entrega** — a decisão que salvou a submissão de ser um laudo que não responde ao brief. E deixei a hipótese intermediária cair quando o teste de uniformidade a derrubou, em vez de defendê-la (ambos detalhados abaixo).
 4. **Entreguei o diagnóstico mesmo assim**, com os testes de significância ao lado de cada número, em vez de omitir ou inventar.
 5. **Treinei e calibrei o classificador** no dataset real, focando na curva cobertura × acurácia em vez da acurácia bruta.
 6. **Liguei os dois datasets no ROI** — cobertura medida × volume, com desconto de retrabalho.
@@ -133,6 +133,8 @@ Três correções concretas, todas registradas no [Diário de Bordo](docs/DIARIO
 **3. Os exemplos do protótipo estavam mal rotulados — por mim.** Escrevi quatro exemplos de ticket à mão para a demo. Ao testar, o exemplo rotulado "Acesso" foi classificado como Storage com 99,9% de confiança. O modelo estava certo: meu texto mencionava *shared folder*. Troquei todos por **tickets reais sorteados do dataset, com o rótulo verdadeiro visível**. Exemplo escrito à mão contém as palavras que o autor acha que definem a classe, o que infla artificialmente a confiança — exatamente o "cherry-picking" que o critério de qualidade condena.
 
 ### O que eu adicionei que a IA sozinha não faria
+
+**Cortar o escopo quando o trabalho bom estava na direção errada.** Esta foi a intervenção mais consequente da submissão. A auditoria do Dataset 1 estava virando o eixo do projeto — rigorosa, verdadeira, e fora do que o brief pediu. Interrompi a linha de trabalho, recoloquei os quatro entregáveis na mesa e exigi que o esforço voltasse para eles (registro em [`process-log/screenshots/08-...png`](process-log/screenshots/08-redirecionamento-usuario-foco-no-brief.png), e a concessão na resposta: *"você tem razão, e vou ajustar"*). Sem essa parada, a entrega seria um laudo forense que não responde ao Diretor de Operações. A IA não corta o próprio escopo: ela estava produzindo bom trabalho, e nada no resultado parcial sinalizava o desvio. Reconhecer que qualidade na direção errada ainda é desperdício é julgamento de quem responde pela entrega.
 
 **Duvidar do enunciado.** O brief afirma "texto real de descrição e resolução" e "~30.000 registros". Ambas são falsas — o texto é template com placeholder exposto e são 8.469 registros. Uma IA respondendo ao brief trata o enunciado como verdade; verificar o enunciado contra o arquivo é decisão de quem já levou prejuízo confiando em documentação de sistema.
 

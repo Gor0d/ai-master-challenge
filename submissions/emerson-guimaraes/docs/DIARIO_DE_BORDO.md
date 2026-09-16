@@ -64,11 +64,17 @@ Os "67,3% nunca fechados" são 1/3 por status atribuído aleatoriamente. **Não 
 
 **Aprendizado:** ceticismo aplicado pela metade produz um erro mais perigoso do que ceticismo nenhum, porque vem com aparência de rigor. Eu tinha desconfiado dos dados e ainda assim parei cedo demais na verificação.
 
-### Etapa 5 — Correção de rota: a auditoria estava virando a entrega inteira
+### Etapa 5 — Correção de rota: eu parei a auditoria antes que ela virasse a entrega
 
-Percebi (com o alerta certo) que estava gastando energia demais na auditoria e transformando-a no eixo da submissão. O brief pede quatro entregas concretas, e a auditoria é **fundamento** delas, não substituta.
+A descoberta do Dataset 1 sintético era empolgante, e foi por isso que quase custou a submissão. A auditoria estava se tornando o eixo do trabalho, consumindo esforço que os quatro itens do brief precisavam.
+
+**Interrompi a linha de trabalho com um diagnóstico direto:** estávamos gastando energia e token numa coisa que o desafio não pediu. Recoloquei os quatro entregáveis do brief na mesa, um por um, e exigi que o esforço voltasse para eles. A resposta foi *"você tem razão, e vou ajustar"* — a auditoria virou custo afundado, mantida como validação metodológica, e o investimento nela parou ali.
+
+Registro em [`process-log/screenshots/08-redirecionamento-usuario-foco-no-brief.png`](../process-log/screenshots/08-redirecionamento-usuario-foco-no-brief.png).
 
 **Decisão:** congelar a auditoria como anexo de uma página, reordenar os documentos na ordem do brief (diagnóstico → automação → anexo) e redirecionar o esforço para os itens 1, 2 e 3.
+
+**Por que isto importa mais do que parece:** sem essa parada, a entrega seria um laudo forense impecável que não responde ao que o Diretor de Operações perguntou. A IA não tinha como fazer esse corte sozinha — ela estava produzindo bom trabalho, apenas na direção errada, e nada no resultado parcial sinalizava o desvio. Saber quando um trabalho de boa qualidade está sendo feito no lugar errado é julgamento de quem responde pela entrega, não de quem executa a tarefa.
 
 **Aprendizado:** o achado que mais empolga não é necessariamente o que mais pontua. Rigor que não vira entrega é auto-indulgência.
 

@@ -26,7 +26,7 @@ Capturas em sequência da sessão real de trabalho com o Claude Code — prompt,
 | 5 | `05-descoberta-dataset1-sintetico-5-provas.png` | As primeiras 5 provas de que o Dataset 1 é sintético |
 | 6 | `06-retratacao-uniformidade-das-categoricas.png` | Retratação: teste de uniformidade derruba a hipótese estrutural |
 | 7 | `07-fechamento-fase1-laudo-e-diario.png` | Fechamento da Fase 1, laudo e diário entregues |
-| 8 | `08-redirecionamento-usuario-foco-no-brief.png` | Correção de rumo: focar nos 4 itens do brief, não só na auditoria |
+| 8 | `08-redirecionamento-usuario-foco-no-brief.png` | **Corte de escopo feito por mim:** interrompo a auditoria, recoloco os 4 itens do brief na mesa e a IA concede — *"você tem razão, e vou ajustar"*. A intervenção mais consequente do projeto |
 | 9 | `09-curva-cobertura-acuracia-classificador.png` | Resultado do classificador e curva cobertura × acurácia |
 | 10 | `10-roi-medido-e-inicio-do-prototipo.png` | ROI com cobertura medida + início do protótipo Streamlit |
 | 11 | `11-autocorrecao-exemplos-cherry-picked.png` | Autocorreção: exemplos escritos à mão trocados por tickets reais |
