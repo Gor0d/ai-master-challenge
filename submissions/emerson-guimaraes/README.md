@@ -144,13 +144,13 @@ Três correções concretas, todas registradas no [Diário de Bordo](docs/DIARIO
 
 ### Iterações
 
-Aproximadamente 20 ciclos de trabalho, distribuídos em 12 commits temáticos. A auditoria sozinha passou por três rodadas: suspeita inicial → 6 testes → 9 testes com a assinatura do Faker → retratação da hipótese estrutural.
+Aproximadamente 20 ciclos de trabalho, distribuídos em commits temáticos (`git log --oneline` nesta branch tem a sequência). A auditoria sozinha passou por três rodadas: suspeita inicial → 6 testes → 9 testes com a assinatura do Faker → retratação da hipótese estrutural.
 
 ---
 
 ## Evidências
 
-- [x] **Git history** — 12 commits temáticos com a evolução do raciocínio nas mensagens, incluindo o commit que registra a retratação
+- [x] **Git history** — commits temáticos com a evolução do raciocínio nas mensagens, incluindo o que registra a retratação da hipótese estrutural e os dois da revisão final
 - [x] **Narrativa escrita** — [Diário de Bordo](docs/DIARIO_DE_BORDO.md), escrito durante o trabalho e não reconstruído no fim
 - [x] **Código reproduzível** — todos os números desta submissão saem de `solution/scripts/`, executáveis de ponta a ponta
 - [x] **Saídas brutas versionadas** — JSONs em `solution/outputs/` para conferência independente
