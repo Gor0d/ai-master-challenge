@@ -1,15 +1,19 @@
 """
-Mesa de Triagem - prototipo funcional
+Mesa de Triagem — protótipo funcional
 =====================================
-Demonstra o fluxo proposto no item 2 do relatorio, rodando sobre o modelo
+Demonstra o fluxo proposto no item 2 do relatório, rodando sobre o modelo
 real treinado nos 47.837 tickets do Dataset 2.
 
-Tres telas:
-  1. Triagem      - cola o texto do ticket, recebe categoria + confianca +
-                    decisao de roteamento (automatico ou humano)
-  2. Lote         - roda sobre uma amostra real do dataset, nao sobre
+Três telas:
+  1. Triagem      — cola o texto do ticket, recebe categoria + confiança +
+                    decisão de roteamento (automático ou humano)
+  2. Lote         — roda sobre uma amostra real do dataset, não sobre
                     exemplos escolhidos a dedo
-  3. Calculadora  - o Diretor ajusta as premissas e ve o ROI recalcular
+  3. Calculadora  — o Diretor ajusta as premissas e vê o ROI recalcular
+
+Convenção: identificadores em Python seguem sem acento (padrão da
+linguagem); todo texto destinado a leitura humana é escrito em português
+correto.
 
 Uso:  streamlit run app.py
 """
@@ -23,8 +27,8 @@ from joblib import load
 
 AQUI = Path(__file__).resolve()
 SAIDA = AQUI.parents[1] / "outputs"
-# submissions/<nome>/solution/app/app.py -> parents[4] e a raiz do repo,
-# o mesmo indice usado pelos scripts. Manter alinhado: e daqui que sai o
+# submissions/<nome>/solution/app/app.py -> parents[4] é a raiz do repo,
+# o mesmo índice usado pelos scripts. Manter alinhado: é daqui que sai o
 # caminho dos CSVs usados pela aba de lote e pelos exemplos reais.
 RAIZ_REPO = AQUI.parents[4]
 DADOS = RAIZ_REPO / "datasets" / "raw"
@@ -33,21 +37,31 @@ st.set_page_config(page_title="Mesa de Triagem", page_icon=":material/inbox:",
                    layout="wide")
 
 
+def num_br(v, casas=0):
+    """Formata número no padrão brasileiro: 1.234,56.
+
+    Troca os separadores de uma vez, em vez de aplicar .replace() sobre a
+    frase inteira — que trocaria também as vírgulas do texto por pontos.
+    """
+    s = f"{v:,.{casas}f}"
+    return s.replace(",", "\x00").replace(".", ",").replace("\x00", ".")
+
+
 # ----------------------------------------------------------------- dados
 
 @st.cache_resource
 def carregar_modelo():
     """Devolve (modelo, erro).
 
-    O modelo treinado vem versionado no repositorio para que o avaliador
-    rode o app sem treinar nada. Mas joblib nao garante compatibilidade
-    entre versoes de scikit-learn: num ambiente diferente o pickle pode
-    falhar. Nesse caso a tela tem de dizer o que fazer, nao mostrar
+    O modelo treinado vem versionado no repositório para que o avaliador
+    rode o app sem treinar nada. Mas o joblib não garante compatibilidade
+    entre versões do scikit-learn: num ambiente diferente o pickle pode
+    falhar. Nesse caso a tela tem de dizer o que fazer, não mostrar
     traceback.
     """
     caminho = SAIDA / "modelo_triagem.joblib"
     if not caminho.exists():
-        return None, "arquivo nao encontrado"
+        return None, "arquivo não encontrado"
     try:
         return load(caminho), None
     except Exception as e:
@@ -76,10 +90,10 @@ metricas = carregar_metricas()
 
 if modelo is None or metricas is None:
     st.error(
-        f"Modelo indisponivel: {erro_modelo or 'metricas ausentes'}.\n\n"
-        "O modelo treinado e as metricas vem versionados em "
-        "`solution/outputs/`. Se faltarem, ou se a versao de "
-        "scikit-learn deste ambiente for incompativel com a do pickle, "
+        f"Modelo indisponível: {erro_modelo or 'métricas ausentes'}.\n\n"
+        "O modelo treinado e as métricas vêm versionados em "
+        "`solution/outputs/`. Se faltarem, ou se a versão do "
+        "scikit-learn deste ambiente for incompatível com a do pickle, "
         "regenere com:\n\n"
         "`python scripts/03_classificador.py`\n\n"
         f"Procurado em: `{SAIDA}`")
@@ -89,10 +103,14 @@ CLASSES = list(modelo.named_steps["clf"].classes_)
 CURVA = metricas["curva_cobertura_x_acuracia"]
 POR_CLASSE = metricas["desempenho_por_classe"]
 
-# Categorias que nunca sao roteadas sozinhas, independentemente da confianca.
-# Justificativa no item 2 do relatorio: envolvem concessao de privilegio,
-# decisao de gasto ou dado pessoal - onde o custo de errar e assimetrico.
+# Categorias que nunca são roteadas sozinhas, independentemente da
+# confiança. Justificativa no item 2 do relatório: envolvem concessão de
+# privilégio, decisão de gasto ou dado pessoal — onde o custo de errar é
+# assimétrico.
 SEMPRE_HUMANO = {"Administrative rights", "Purchase"}
+
+AUTOMATICO = "AUTOMÁTICO"
+HUMANO = "HUMANO"
 
 
 def classificar(texto, limiar):
@@ -102,11 +120,14 @@ def classificar(texto, limiar):
     conf = float(proba[ordem[0]])
 
     if topo in SEMPRE_HUMANO:
-        decisao, motivo = "HUMANO", f"categoria '{topo}' e de decisao sensivel"
+        decisao = HUMANO
+        motivo = f"categoria '{topo}' é de decisão sensível"
     elif conf < limiar:
-        decisao, motivo = "HUMANO", f"confianca {conf:.0%} abaixo do limiar {limiar:.0%}"
+        decisao = HUMANO
+        motivo = f"confiança {conf:.0%} abaixo do limiar {limiar:.0%}"
     else:
-        decisao, motivo = "AUTOMATICO", f"confianca {conf:.0%} acima do limiar"
+        decisao = AUTOMATICO
+        motivo = f"confiança {conf:.0%} acima do limiar"
 
     return {
         "categoria": topo, "confianca": conf, "decisao": decisao,
@@ -117,11 +138,11 @@ def classificar(texto, limiar):
 
 @st.cache_data
 def exemplos_reais():
-    """Um ticket real de cada categoria, com o rotulo verdadeiro a vista.
+    """Um ticket real de cada categoria, com o rótulo verdadeiro à vista.
 
     Preferir tickets reais a exemplos escritos para a demo: exemplo escrito
-    a mao tende a conter as palavras que o autor acha que definem a classe,
-    o que inflaciona artificialmente a confianca do modelo.
+    à mão tende a conter as palavras que o autor acha que definem a classe,
+    o que inflaciona artificialmente a confiança do modelo.
     """
     d = carregar_amostra(3000)
     if d is None:
@@ -129,7 +150,7 @@ def exemplos_reais():
     escolhidos = {"(escrever manualmente)": ""}
     for cat in sorted(d["Topic_group"].unique()):
         linha = d[d["Topic_group"] == cat].iloc[0]
-        escolhidos[f"{cat} (rotulo real)"] = linha["Document"]
+        escolhidos[f"{cat} (rótulo real)"] = linha["Document"]
     return escolhidos
 
 
@@ -150,27 +171,28 @@ def termos_decisivos(texto, categoria, n=8):
 # ------------------------------------------------------------------ UI
 
 st.title("Mesa de Triagem")
-st.caption("Classificacao e roteamento automatico de tickets · modelo "
-           f"treinado em {metricas['configuracao']['n_treino']:,} tickets reais "
-           f"· acuracia {metricas['desempenho_global']['acuracia_pct']}%."
-           .replace(",", "."))
+st.caption(
+    "Classificação e roteamento automático de tickets · modelo treinado em "
+    f"{num_br(metricas['configuracao']['n_treino'])} tickets reais · "
+    f"acurácia {num_br(metricas['desempenho_global']['acuracia_pct'], 2)}%.")
 
 with st.sidebar:
-    st.header("Configuracao")
-    limiar = st.slider("Limiar de confianca para roteamento automatico",
+    st.header("Configuração")
+    limiar = st.slider("Limiar de confiança para roteamento automático",
                        0.50, 0.99, 0.80, 0.01,
                        help="Abaixo deste valor, o ticket vai para um humano.")
 
     ponto = min(CURVA, key=lambda r: abs(r["limiar_confianca"] - limiar))
-    st.metric("Cobertura automatica", f"{ponto['cobertura_pct']:.1f}%")
-    st.metric("Acuracia no automatizado",
-              f"{ponto['acuracia_no_aceito_pct']:.2f}%")
+    st.metric("Cobertura automática",
+              f"{num_br(ponto['cobertura_pct'], 1)}%")
+    st.metric("Acurácia no automatizado",
+              f"{num_br(ponto['acuracia_no_aceito_pct'], 2)}%")
     st.caption(f"A cada 1.000 tickets, ~{int(ponto['cobertura_pct'] * 10)} "
-               f"sao roteados sozinhos e "
+               "são roteados sozinhos e "
                f"~{round(ponto['cobertura_pct'] * 10 * (1 - ponto['acuracia_no_aceito_pct'] / 100))}"
-               f" deles vao para a fila errada.")
+               " deles vão para a fila errada.")
     st.divider()
-    st.caption("**Sempre humano**, qualquer confianca:\n\n"
+    st.caption("**Sempre humano**, qualquer confiança:\n\n"
                + "\n".join(f"- {c}" for c in sorted(SEMPRE_HUMANO)))
 
 aba1, aba2, aba3 = st.tabs(["Triagem", "Lote (dados reais)",
@@ -183,8 +205,8 @@ with aba1:
         exemplos = exemplos_reais()
         escolha = st.selectbox(
             "Carregar um ticket real do dataset", list(exemplos),
-            help="Tickets sorteados do conjunto real, com o rotulo verdadeiro "
-                 "entre parenteses. Nao sao exemplos escritos para a demo.")
+            help="Tickets sorteados do conjunto real, com o rótulo verdadeiro "
+                 "entre parênteses. Não são exemplos escritos para a demo.")
         texto = st.text_area("Texto do ticket", value=exemplos[escolha],
                              height=180,
                              placeholder="Cole aqui o texto do chamado...")
@@ -193,27 +215,27 @@ with aba1:
     with col_b:
         if analisar and texto.strip():
             r = classificar(texto, limiar)
-            if r["decisao"] == "AUTOMATICO":
+            if r["decisao"] == AUTOMATICO:
                 st.success(f"**{r['decisao']}** → fila *{r['categoria']}*")
             else:
-                st.warning(f"**{r['decisao']}** → revisao manual")
+                st.warning(f"**{r['decisao']}** → revisão manual")
             st.caption(f"Motivo: {r['motivo']}")
             st.metric("Categoria prevista", r["categoria"],
-                      f"{r['confianca']:.1%} de confianca")
+                      f"{r['confianca']:.1%} de confiança")
 
-            st.write("**Outras hipoteses**")
+            st.write("**Outras hipóteses**")
             for cat, p in r["alternativas"]:
                 st.write(f"- {cat} · {p:.1%}")
 
             st.write("**Por que esta categoria**")
             for termo, peso in termos_decisivos(texto, r["categoria"]):
                 if peso > 0:
-                    st.write(f"- `{termo}` (+{peso:.3f})")
+                    st.write(f"- `{termo}` (+{num_br(peso, 3)})")
 
             qualidade = POR_CLASSE.get(r["categoria"], {})
             if qualidade:
                 st.caption(
-                    f"Historico desta categoria no teste: precisao "
+                    "Histórico desta categoria no teste: precisão "
                     f"{qualidade['precision']:.1%} · recall "
                     f"{qualidade['recall']:.1%}.")
         elif analisar:
@@ -221,16 +243,16 @@ with aba1:
 
 # ---------------------------------------------------------------- aba 2
 with aba2:
-    st.subheader("Simulacao sobre amostra real do dataset")
-    st.caption("Amostra aleatoria (semente fixa) dos tickets reais — nao sao "
-               "exemplos escolhidos a dedo. O rotulo verdadeiro esta na "
-               "coluna final para conferencia.")
+    st.subheader("Simulação sobre amostra real do dataset")
+    st.caption("Amostra aleatória (semente fixa) dos tickets reais — não são "
+               "exemplos escolhidos a dedo. O rótulo verdadeiro está na "
+               "coluna final para conferência.")
 
     amostra = carregar_amostra()
     if amostra is None:
         st.error(
-            "Dataset 2 nao encontrado. Esta aba roda sobre os tickets reais "
-            "do dataset, nao sobre exemplos embutidos - por isso depende do "
+            "Dataset 2 não encontrado. Esta aba roda sobre os tickets reais "
+            "do dataset, não sobre exemplos embutidos — por isso depende do "
             "CSV.\n\n"
             f"Procurado em: `{DADOS / 'all_tickets_processed_improved_v3.csv'}`"
             "\n\nVer `docs/SETUP.md` para obter os dados.")
@@ -242,20 +264,20 @@ with aba2:
             sensivel = np.isin(previsto, list(SEMPRE_HUMANO))
             auto = (conf >= limiar) & ~sensivel
 
-            # motivo explicito da decisao: a regra de negocio fica visivel
-            # na tela, nao escondida na logica do codigo
+            # Motivo explícito da decisão: a regra de negócio fica visível
+            # na tela, não escondida na lógica do código.
             motivo = np.where(
-                sensivel, "categoria sensivel (sempre humano)",
-                np.where(auto, "confianca suficiente",
-                        "confianca baixa (< limiar)"))
+                sensivel, "categoria sensível (sempre humano)",
+                np.where(auto, "confiança suficiente",
+                         "confiança baixa (< limiar)"))
 
             tabela = pd.DataFrame({
                 "ticket": amostra["Document"].str.slice(0, 90) + "...",
                 "previsto": previsto,
-                "confianca": conf.round(3),
-                "decisao": np.where(auto, "AUTOMATICO", "HUMANO"),
+                "confiança": conf.round(3),
+                "decisão": np.where(auto, AUTOMATICO, HUMANO),
                 "motivo": motivo,
-                "rotulo_real": amostra["Topic_group"],
+                "rótulo real": amostra["Topic_group"],
                 "acertou": previsto == amostra["Topic_group"],
             })
 
@@ -263,24 +285,25 @@ with aba2:
             c1.metric("Tickets", len(tabela))
             c2.metric("Roteados sozinhos", f"{auto.mean():.1%}")
             acc_auto = tabela.loc[auto, "acertou"].mean() if auto.any() else 0
-            c3.metric("Acuracia no automatico", f"{acc_auto:.1%}")
+            c3.metric("Acurácia no automático", f"{acc_auto:.1%}")
             c4.metric("Para humano", int((~auto).sum()))
             st.caption(
                 f"Dos {int((~auto).sum())} tickets para humano: "
-                f"{int(sensivel.sum())} por categoria sensivel "
-                f"(Administrative rights/Purchase, qualquer confianca) e "
-                f"{int((~auto & ~sensivel).sum())} por confianca abaixo do limiar.")
+                f"{int(sensivel.sum())} por categoria sensível "
+                "(Administrative rights/Purchase, qualquer confiança) e "
+                f"{int((~auto & ~sensivel).sum())} por confiança abaixo "
+                "do limiar.")
 
             st.dataframe(tabela, use_container_width=True, height=420)
 
-            st.write("**Distribuicao por fila**")
+            st.write("**Distribuição por fila**")
             st.bar_chart(tabela["previsto"].value_counts())
 
 # ---------------------------------------------------------------- aba 3
 with aba3:
     st.subheader("Quanto isso economiza")
-    st.caption("Todas as premissas sao editaveis. Discorde de qualquer uma e "
-               "o numero recalcula.")
+    st.caption("Todas as premissas são editáveis. Discorde de qualquer uma "
+               "e o número recalcula.")
 
     c1, c2, c3 = st.columns(3)
     volume = c1.number_input("Tickets por ano", 1_000, 500_000, 30_000, 1_000)
@@ -290,9 +313,9 @@ with aba3:
                                   0.5, 30.0, 4.0, 0.5)
     min_retrabalho = c1.number_input("Minutos de retrabalho por erro",
                                      1.0, 120.0, 12.0, 1.0)
-    jornada = c2.number_input("Horas/mes por FTE", 100, 220, 168, 4)
+    jornada = c2.number_input("Horas/mês por FTE", 100, 220, 168, 4)
     min_sugestao = c3.number_input(
-        "Min. economizados por sugestao (ticket manual)", 0.0, 10.0, 1.5, 0.5,
+        "Min. economizados por sugestão (ticket manual)", 0.0, 10.0, 1.5, 0.5,
         help="Tempo poupado no ticket que vai para humano mas chega com "
              "categoria sugerida e termos-chave, em vez de partir do zero.")
 
@@ -309,16 +332,16 @@ with aba3:
     st.divider()
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Custo atual da triagem",
-              f"R$ {horas_totais * custo_hora:,.0f}/ano".replace(",", "."))
-    m2.metric("Horas liquidas liberadas",
-              f"{horas_liq:,.0f}/ano".replace(",", "."),
-              f"-{horas_retrab:,.0f}h retrabalho +{horas_assistidas:,.0f}h assistidas"
-              .replace(",", "."))
-    m3.metric("Economia liquida",
-              f"R$ {horas_liq * custo_hora:,.0f}/ano".replace(",", "."))
-    m4.metric("Equivalente", f"{horas_liq / 12 / jornada:.2f} FTE")
+              f"R$ {num_br(horas_totais * custo_hora)}/ano")
+    m2.metric("Horas líquidas liberadas",
+              f"{num_br(horas_liq)}/ano",
+              f"−{num_br(horas_retrab)}h de retrabalho "
+              f"+{num_br(horas_assistidas)}h assistidas")
+    m3.metric("Economia líquida",
+              f"R$ {num_br(horas_liq * custo_hora)}/ano")
+    m4.metric("Equivalente", f"{num_br(horas_liq / 12 / jornada, 2)} FTE")
 
-    st.write("**Sensibilidade ao limiar** — mais automacao nao e linearmente "
+    st.write("**Sensibilidade ao limiar** — mais automação não é linearmente "
              "melhor: acima de certo ponto, o erro consome o ganho.")
     linhas = []
     for r in CURVA:
@@ -329,10 +352,10 @@ with aba3:
         hl = (horas_totais * cob - volume * cob * err * min_retrabalho / 60
               + volume * (1 - cob) * min_sugestao / 60)
         linhas.append({"limiar": r["limiar_confianca"],
-                       "cobertura_%": r["cobertura_pct"],
-                       "acuracia_%": r["acuracia_no_aceito_pct"],
-                       "horas_liquidas_ano": round(hl),
-                       "economia_R$_ano": round(hl * custo_hora)})
+                       "cobertura %": r["cobertura_pct"],
+                       "acurácia %": r["acuracia_no_aceito_pct"],
+                       "horas líquidas/ano": round(hl),
+                       "economia R$/ano": round(hl * custo_hora)})
     df = pd.DataFrame(linhas)
     st.dataframe(df, use_container_width=True, hide_index=True)
-    st.line_chart(df.set_index("limiar")["economia_R$_ano"])
+    st.line_chart(df.set_index("limiar")["economia R$/ano"])

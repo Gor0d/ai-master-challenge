@@ -1,28 +1,39 @@
 """
-01 - Auditoria de integridade dos datasets
+01 — Auditoria de integridade dos datasets
 ==========================================
-Antes de diagnosticar a operacao, e preciso saber se os dados sustentam
-qualquer conclusao. Este script executa nove testes independentes de
+Antes de diagnosticar a operação, é preciso saber se os dados sustentam
+qualquer conclusão. Este script executa nove testes independentes de
 integridade sobre o Dataset 1 (customer_support_tickets.csv) e um perfil
 de qualidade sobre o Dataset 2 (all_tickets_processed_improved_v3.csv).
 
-Conclusao (reproduzivel abaixo): 8 dos 9 testes condenam o Dataset 1. Ele foi
-gerado integralmente pela biblioteca Faker - assinatura confirmada pelos
-dominios RFC 2606 em 100% dos e-mails e pelo vocabulario aleatorio do campo
-Resolution. Nao sao apenas as metricas: TODAS as categoricas sao uniformes,
-portanto nem a composicao de volume por canal/tipo/produto tem informacao.
-Nenhum KPI operacional pode ser derivado deste arquivo.
+Conclusão (reproduzível abaixo): 8 dos 9 testes condenam o Dataset 1. Ele
+foi gerado integralmente pela biblioteca Faker — assinatura confirmada
+pelos domínios RFC 2606 em 100% dos e-mails e pelo vocabulário aleatório
+do campo Resolution. Não são apenas as métricas: TODAS as categóricas são
+uniformes, portanto nem a composição de volume por canal/tipo/produto tem
+informação. Nenhum KPI operacional pode ser derivado deste arquivo.
 
-O Dataset 2, ao contrario, e real e sustenta a solucao quantitativa.
+O Dataset 2, ao contrário, é real e sustenta a solução quantitativa.
+
+Convenção: identificadores em Python e chaves de JSON seguem sem acento
+(as chaves são contrato entre os scripts e o protótipo); todo texto
+destinado a leitura humana é escrito em português correto.
 
 Uso:   python 01_auditoria_integridade.py
-Saida: outputs/auditoria_resultados.json  +  relatorio em stdout
+Saída: outputs/auditoria_resultados.json  +  relatório em stdout
 """
 import json
+import sys
 from pathlib import Path
 
 import pandas as pd
 from scipy import stats
+
+# O relatório em stdout é acentuado e o console do Windows usa cp1252 por
+# padrão, o que levantaria UnicodeEncodeError. Reconfigurar aqui evita
+# depender de PYTHONIOENCODING ou do modo -X utf8 na linha de comando.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 AQUI = Path(__file__).resolve()
 RAIZ_REPO = AQUI.parents[4]
@@ -30,7 +41,14 @@ DADOS = RAIZ_REPO / "datasets" / "raw"
 SAIDA = AQUI.parents[1] / "outputs"
 SAIDA.mkdir(parents=True, exist_ok=True)
 
-ALFA = 0.05  # nivel de significancia para todos os testes
+ALFA = 0.05  # nível de significância para todos os testes
+
+# Vereditos possíveis. Constantes em vez de literais repetidos: o valor é
+# comparado no fim do script, e uma divergência de grafia passaria calada.
+SINTETICO = "SINTÉTICO"
+OK = "ok"
+CONTEXTO = "CONTEXTO"
+REAL_UTILIZAVEL = "REAL_UTILIZÁVEL"
 
 
 def carregar():
@@ -40,7 +58,7 @@ def carregar():
 
 
 def _deltas_horas(ds1):
-    """Horas entre primeira resposta e resolucao. Negativo = impossivel."""
+    """Horas entre primeira resposta e resolução. Negativo = impossível."""
     frt = pd.to_datetime(ds1["First Response Time"], errors="coerce")
     ttr = pd.to_datetime(ds1["Time to Resolution"], errors="coerce")
     return frt, ttr, (ttr - frt).dt.total_seconds() / 3600
@@ -49,22 +67,22 @@ def _deltas_horas(ds1):
 # ---------------------------------------------------------------- testes DS1
 
 def teste_1_placeholders(ds1):
-    """Texto real de cliente nao contem placeholders de template."""
+    """Texto real de cliente não contém placeholders de template."""
     desc = ds1["Ticket Description"].fillna("")
     com_ph = desc.str.contains(r"\{[a-z_]+\}", regex=True)
     normalizado = desc.str.replace(r"\{[a-z_]+\}", "X", regex=True)
     return {
-        "nome": "Placeholders nao substituidos no texto",
+        "nome": "Placeholders não substituídos no texto",
         "pct_descricoes_com_placeholder": round(float(com_ph.mean()) * 100, 2),
         "n_descricoes": int(len(desc)),
         "templates_unicos_apos_normalizar": int(normalizado.nunique()),
         "esperado_se_real": "0% de placeholders",
-        "veredito": "SINTETICO" if com_ph.mean() > 0.5 else "ok",
+        "veredito": SINTETICO if com_ph.mean() > 0.5 else OK,
     }
 
 
 def teste_2_janela_temporal(ds1):
-    """Uma operacao real espalha tickets ao longo de meses."""
+    """Uma operação real espalha tickets ao longo de meses."""
     frt, ttr, _ = _deltas_horas(ds1)
     todos = pd.concat([frt, ttr]).dropna()
     span_h = (todos.max() - todos.min()).total_seconds() / 3600
@@ -75,44 +93,44 @@ def teste_2_janela_temporal(ds1):
         "amplitude_horas": round(span_h, 2),
         "n_tickets": int(len(ds1)),
         "esperado_se_real": "meses ou anos de amplitude",
-        "veredito": "SINTETICO" if span_h < 24 * 30 else "ok",
+        "veredito": SINTETICO if span_h < 24 * 30 else OK,
     }
 
 
 def teste_3_causalidade_temporal(ds1):
-    """Resolucao nao pode anteceder a primeira resposta."""
+    """Resolução não pode anteceder a primeira resposta."""
     _, _, delta = _deltas_horas(ds1)
     validos = delta.notna()
     negativos = (delta < 0) & validos
     return {
-        "nome": "Resolucao anterior a primeira resposta (impossivel)",
+        "nome": "Resolução anterior à primeira resposta (impossível)",
         "n_pares_validos": int(validos.sum()),
         "n_negativos": int(negativos.sum()),
         "pct_negativos": round(float(negativos.sum()) / int(validos.sum()) * 100, 2),
         "delta_medio_horas": round(float(delta[validos].mean()), 4),
-        "esperado_se_real": "0% negativos e delta medio positivo",
-        "veredito": "SINTETICO" if negativos.sum() / validos.sum() > 0.05 else "ok",
+        "esperado_se_real": "0% negativos e delta médio positivo",
+        "veredito": SINTETICO if negativos.sum() / validos.sum() > 0.05 else OK,
     }
 
 
 def teste_4_uniformidade_csat(ds1):
-    """CSAT real e enviesado (curva J), nunca uniforme."""
+    """CSAT real é enviesado (curva J), nunca uniforme."""
     csat = ds1["Customer Satisfaction Rating"].dropna()
     contagem = csat.value_counts().sort_index()
     chi2, p = stats.chisquare(contagem.values)
     return {
-        "nome": "Uniformidade da distribuicao de CSAT",
+        "nome": "Uniformidade da distribuição de CSAT",
         "contagem_por_nota": {str(k): int(v) for k, v in contagem.items()},
         "chi2_vs_uniforme": round(float(chi2), 4),
         "p_valor": round(float(p), 4),
-        "interpretacao": "p alto = indistinguivel de sorteio uniforme",
-        "esperado_se_real": "p < 0.05 (distribuicao enviesada)",
-        "veredito": "SINTETICO" if p > ALFA else "ok",
+        "interpretacao": "p alto = indistinguível de sorteio uniforme",
+        "esperado_se_real": "p < 0,05 (distribuição enviesada)",
+        "veredito": SINTETICO if p > ALFA else OK,
     }
 
 
 def teste_5_ausencia_de_sinal(ds1):
-    """Em operacao real, tempo de resolucao e canal afetam satisfacao."""
+    """Em operação real, tempo de resolução e canal afetam a satisfação."""
     _, _, delta = _deltas_horas(ds1)
     d = ds1.assign(delta_h=delta)
     sub = d.dropna(subset=["Customer Satisfaction Rating", "delta_h"])
@@ -132,7 +150,7 @@ def teste_5_ausencia_de_sinal(ds1):
 
     medias = d.groupby("Ticket Channel")["Customer Satisfaction Rating"].mean()
     return {
-        "nome": "Ausencia de sinal entre variaveis operacionais e CSAT",
+        "nome": "Ausência de sinal entre variáveis operacionais e CSAT",
         "pearson_csat_x_tempo_resolucao": {"r": round(float(r), 4),
                                            "p": round(float(p_r), 4),
                                            "n": int(len(sub))},
@@ -141,22 +159,22 @@ def teste_5_ausencia_de_sinal(ds1):
         "qui_quadrado_independencia": associacoes,
         "csat_medio_por_canal": {k: round(float(v), 4) for k, v in medias.items()},
         "amplitude_csat_medio": round(float(medias.max() - medias.min()), 4),
-        "esperado_se_real": "ao menos uma associacao significativa (p < 0.05)",
-        "veredito": "SINTETICO" if (p_r > ALFA and p_anova > ALFA) else "ok",
+        "esperado_se_real": "ao menos uma associação significativa (p < 0,05)",
+        "veredito": SINTETICO if (p_r > ALFA and p_anova > ALFA) else OK,
     }
 
 
 def teste_6_dominios_email(ds1):
-    """example.com/org/net sao reservados pela RFC 2606 e sao o padrao do Faker."""
+    """example.com/org/net são reservados pela RFC 2606 e são o padrão do Faker."""
     dominios = ds1["Customer Email"].str.split("@").str[1]
     reservados = dominios.isin(["example.com", "example.org", "example.net"])
     return {
-        "nome": "Dominios de e-mail reservados (assinatura do Faker)",
+        "nome": "Domínios de e-mail reservados (assinatura do Faker)",
         "distribuicao_dominios": {str(k): int(v)
                                   for k, v in dominios.value_counts().items()},
         "pct_dominios_reservados_rfc2606": round(float(reservados.mean()) * 100, 2),
-        "esperado_se_real": "dominios variados de provedores reais",
-        "veredito": "SINTETICO" if reservados.mean() > 0.5 else "ok",
+        "esperado_se_real": "domínios variados de provedores reais",
+        "veredito": SINTETICO if reservados.mean() > 0.5 else OK,
     }
 
 
@@ -169,7 +187,7 @@ def teste_7_vocabulario_resolucao(ds1):
     ocorrencias = {t: int(palavras.eq(t).sum()) for t in termos}
     ausentes = [t for t, n in ocorrencias.items() if n == 0]
     return {
-        "nome": "Vocabulario do campo Resolution",
+        "nome": "Vocabulário do campo Resolution",
         "n_resolucoes": int(len(res)),
         "palavras_unicas": int(palavras.nunique()),
         "top_10_palavras": {str(k): int(v)
@@ -177,16 +195,16 @@ def teste_7_vocabulario_resolucao(ds1):
         "ocorrencias_termos_de_suporte": ocorrencias,
         "termos_com_zero_ocorrencias": ausentes,
         "amostras": res.head(3).tolist(),
-        "esperado_se_real": "vocabulario dominado por termos de atendimento",
-        "veredito": "SINTETICO" if len(ausentes) >= 3 else "ok",
+        "esperado_se_real": "vocabulário dominado por termos de atendimento",
+        "veredito": SINTETICO if len(ausentes) >= 3 else OK,
     }
 
 
 def teste_8_uniformidade_categoricas(ds1):
-    """Se TODA categorica for uniforme, nao ha nem composicao aproveitavel."""
+    """Se TODA categórica for uniforme, não há nem composição aproveitável."""
     colunas = ["Ticket Channel", "Ticket Priority", "Ticket Type",
                "Ticket Status", "Product Purchased", "Ticket Subject"]
-    # Bonferroni: 6 testes simultaneos
+    # Bonferroni: 6 testes simultâneos
     alfa_corrigido = ALFA / len(colunas)
     resultados = {}
     uniformes = 0
@@ -200,38 +218,39 @@ def teste_8_uniformidade_categoricas(ds1):
                          "p": round(float(p), 4),
                          "uniforme": bool(eh_uniforme)}
     return {
-        "nome": "Uniformidade de TODAS as categoricas (chi2 vs uniforme)",
+        "nome": "Uniformidade de TODAS as categóricas (chi2 vs. uniforme)",
         "alfa_bonferroni": round(alfa_corrigido, 5),
         "resultados": resultados,
         "n_colunas_uniformes": int(uniformes),
         "n_colunas_testadas": len(colunas),
-        "implicacao": ("Categoricas uniformes = nem a composicao de volume "
-                       "por canal/tipo/produto carrega informacao. O dataset "
-                       "nao sustenta sequer analise descritiva de mix."),
+        "implicacao": ("Categóricas uniformes = nem a composição de volume "
+                       "por canal/tipo/produto carrega informação. O dataset "
+                       "não sustenta sequer análise descritiva de mix."),
         "esperado_se_real": "mix desbalanceado (lei de Pareto no suporte)",
-        "veredito": "SINTETICO" if uniformes == len(colunas) else "ok",
+        "veredito": SINTETICO if uniformes == len(colunas) else OK,
     }
 
 
 def teste_9_completude(ds1):
-    """Este teste NAO condena: mede o que sobra de aproveitavel."""
+    """Este teste NÃO condena: mede o que sobra de aproveitável."""
     n = len(ds1)
     nulos = ds1.isna().sum()
     fechados = int((ds1["Ticket Status"] == "Closed").sum())
     return {
-        "nome": "Completude e composicao do backlog",
+        "nome": "Completude e composição do backlog",
         "n_registros": int(n),
         "n_registros_prometido_no_brief": 30000,
         "divergencia_vs_brief": int(30000 - n),
         "campos_com_nulos": {c: int(v) for c, v in nulos.items() if v > 0},
         "tickets_fechados": fechados,
         "pct_nunca_fechados": round((n - fechados) / n * 100, 2),
-        "observacao": ("Resolution, Time to Resolution e CSAT tem exatamente o "
-                       "mesmo numero de nulos: so existem para tickets Closed. "
-                       "ATENCAO: como Ticket Status tambem e uniforme (teste 8), "
-                       "os 67,3% 'nunca fechados' NAO representam um backlog "
-                       "real - e 1/3 por status atribuido aleatoriamente."),
-        "veredito": "CONTEXTO",
+        "observacao": ("Resolution, Time to Resolution e CSAT têm exatamente "
+                       "o mesmo número de nulos: só existem para tickets "
+                       "Closed. ATENÇÃO: como Ticket Status também é uniforme "
+                       "(teste 8), os 67,3% 'nunca fechados' NÃO representam "
+                       "um backlog real — é 1/3 por status atribuído "
+                       "aleatoriamente."),
+        "veredito": CONTEXTO,
     }
 
 
@@ -257,7 +276,7 @@ def perfil_ds2(ds2):
             "p75": float(palavras.quantile(0.75)),
             "max": int(palavras.max()),
         },
-        "veredito": "REAL_UTILIZAVEL",
+        "veredito": REAL_UTILIZAVEL,
     }
 
 
@@ -269,7 +288,7 @@ def main():
               teste_7_vocabulario_resolucao(ds1),
               teste_8_uniformidade_categoricas(ds1), teste_9_completude(ds1)]
     ds2_perfil = perfil_ds2(ds2)
-    condenatorios = [t for t in testes if t["veredito"] == "SINTETICO"]
+    condenatorios = [t for t in testes if t["veredito"] == SINTETICO]
 
     resultado = {
         "dataset_1": {
@@ -277,10 +296,10 @@ def main():
             "testes": testes,
             "n_testes_condenatorios": len(condenatorios),
             "conclusao": ("Dataset integralmente gerado por biblioteca de "
-                          "dados falsos (assinatura Faker confirmada). Nao "
-                          "apenas as metricas: TODAS as categoricas sao "
-                          "uniformes, entao nem a composicao de volume por "
-                          "canal/tipo/produto carrega informacao. Nenhum KPI "
+                          "dados falsos (assinatura do Faker confirmada). "
+                          "Não apenas as métricas: TODAS as categóricas são "
+                          "uniformes, então nem a composição de volume por "
+                          "canal/tipo/produto carrega informação. Nenhum KPI "
                           "operacional pode ser derivado deste arquivo."),
         },
         "dataset_2": ds2_perfil,
@@ -291,7 +310,7 @@ def main():
                        encoding="utf-8")
 
     print("=" * 78)
-    print("AUDITORIA DE INTEGRIDADE - RESULTADO")
+    print("AUDITORIA DE INTEGRIDADE — RESULTADO")
     print("=" * 78)
     for t in testes + [ds2_perfil]:
         print(f"\n[{t['veredito']:>22}]  {t['nome']}")
@@ -299,7 +318,8 @@ def main():
             if k not in ("nome", "veredito"):
                 print(f"     {k}: {v}")
     print("\n" + "=" * 78)
-    print(f"VEREDITO: {len(condenatorios)}/{len(testes)} testes condenam o Dataset 1.")
+    print(f"VEREDITO: {len(condenatorios)}/{len(testes)} testes condenam "
+          "o Dataset 1.")
     print(f"JSON salvo em: {destino}")
     print("=" * 78)
 

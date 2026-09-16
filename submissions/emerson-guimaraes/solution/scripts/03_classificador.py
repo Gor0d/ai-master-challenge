@@ -1,22 +1,27 @@
 """
-03 - Classificador de tickets (Dataset 2)
+03 — Classificador de tickets (Dataset 2)
 =========================================
-Treina e avalia o motor de triagem automatica sobre os 47.837 tickets reais.
+Treina e avalia o motor de triagem automática sobre os 47.837 tickets reais.
 
-O ponto central nao e a acuracia bruta: e a CURVA DE COBERTURA x ACURACIA.
-Um classificador que acerta 85% no geral e inutil para automacao se nao
-souber quando esta inseguro. O que importa operacionalmente e:
+O ponto central não é a acurácia bruta: é a CURVA DE COBERTURA × ACURÁCIA.
+Um classificador que acerta 85% no geral é inútil para automação se não
+souber quando está inseguro. O que importa operacionalmente é:
 
-    "acima do limiar X de confianca, o modelo cobre Y% dos tickets
-     com Z% de acuracia - e os (100-Y)% restantes vao para humano"
+    "acima do limiar X de confiança, o modelo cobre Y% dos tickets
+     com Z% de acurácia — e os (100−Y)% restantes vão para humano"
 
-Esse Y medido e o que alimenta o calculo de ROI. Substitui premissa por dado.
+Esse Y medido é o que alimenta o cálculo de ROI. Substitui premissa por dado.
+
+Convenção: identificadores em Python e chaves de JSON seguem sem acento
+(as chaves são contrato entre os scripts e o protótipo); todo texto
+destinado a leitura humana é escrito em português correto.
 
 Uso:   python 03_classificador.py
-Saida: outputs/classificador_metricas.json
+Saída: outputs/classificador_metricas.json
        outputs/modelo_triagem.joblib
 """
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -28,6 +33,11 @@ from sklearn.metrics import (classification_report, confusion_matrix,
                              f1_score, accuracy_score)
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
+
+# O relatório em stdout é acentuado e o console do Windows usa cp1252 por
+# padrão, o que levantaria UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 AQUI = Path(__file__).resolve()
 RAIZ_REPO = AQUI.parents[4]
@@ -46,13 +56,13 @@ def carregar():
 
 
 def construir_pipeline():
-    """TF-IDF + regressao logistica.
+    """TF-IDF + regressão logística.
 
-    Escolha deliberada por modelo linear e nao por LLM/transformer:
+    Escolha deliberada por modelo linear e não por LLM/transformer:
     - roda em CPU, sem GPU e sem custo por chamada
-    - inferencia em milissegundos, compativel com triagem em tempo real
-    - class_weight balanced compensa o desbalanceamento de 7,74x
-    - e auditavel: da para extrair os termos que levaram a cada decisao,
+    - inferência em milissegundos, compatível com triagem em tempo real
+    - class_weight balanced compensa o desbalanceamento de 7,74×
+    - é auditável: dá para extrair os termos que levaram a cada decisão,
       o que importa quando um agente questiona o roteamento
     """
     return Pipeline([
@@ -65,7 +75,7 @@ def construir_pipeline():
 
 
 def curva_cobertura(y_true, y_pred, confianca):
-    """Para cada limiar: quanto o modelo cobre e com que acuracia."""
+    """Para cada limiar: quanto o modelo cobre e com que acurácia."""
     linhas = []
     for limiar in LIMIARES:
         aceito = confianca >= limiar
@@ -115,7 +125,7 @@ def main():
     f1m = float(f1_score(y_te_arr, y_pred, average="macro"))
     f1w = float(f1_score(y_te_arr, y_pred, average="weighted"))
 
-    # baseline: sempre a classe majoritaria
+    # baseline: sempre a classe majoritária
     majoritaria = y_tr.value_counts().idxmax()
     acc_baseline = float((y_te_arr == majoritaria).mean())
 
@@ -123,7 +133,7 @@ def main():
     por_classe = desempenho_por_classe(y_te_arr, y_pred, classes)
     cm = confusion_matrix(y_te_arr, y_pred, labels=classes)
 
-    # confusoes mais frequentes: onde o modelo erra sistematicamente
+    # confusões mais frequentes: onde o modelo erra sistematicamente
     confusoes = []
     for i, real in enumerate(classes):
         for j, previsto in enumerate(classes):
@@ -134,7 +144,7 @@ def main():
                                       cm[i, j] / cm[i].sum() * 100, 2)})
     confusoes.sort(key=lambda r: r["n"], reverse=True)
 
-    # classes com recall baixo nao devem ser automatizadas
+    # classes com recall baixo não devem ser automatizadas
     frageis = {c: m for c, m in por_classe.items() if m.get("recall", 1) < 0.70}
 
     resultado = {
@@ -162,18 +172,19 @@ def main():
         json.dumps(resultado, indent=2, ensure_ascii=False), encoding="utf-8")
     dump(pipe, SAIDA / "modelo_triagem.joblib")
 
-    # --------------------------------------------------------- relatorio
+    # --------------------------------------------------------- relatório
     print("\n" + "=" * 78)
-    print("CLASSIFICADOR DE TRIAGEM - RESULTADOS")
+    print("CLASSIFICADOR DE TRIAGEM — RESULTADOS")
     print("=" * 78)
     g = resultado["desempenho_global"]
-    print(f"\nAcuracia global: {g['acuracia_pct']}%  "
-          f"(baseline classe majoritaria: {g['baseline_classe_majoritaria_pct']}%, "
+    print(f"\nAcurácia global: {g['acuracia_pct']}%  "
+          f"(baseline da classe majoritária: "
+          f"{g['baseline_classe_majoritaria_pct']}%, "
           f"ganho +{g['ganho_sobre_baseline_pp']} p.p.)")
     print(f"F1 macro: {g['f1_macro']} | F1 ponderado: {g['f1_ponderado']}")
 
-    print("\nCURVA COBERTURA x ACURACIA (o numero que importa p/ automacao)")
-    print(f"{'limiar':>8} {'cobertura':>11} {'acuracia':>10} "
+    print("\nCURVA COBERTURA × ACURÁCIA (o número que importa p/ automação)")
+    print(f"{'limiar':>8} {'cobertura':>11} {'acurácia':>10} "
           f"{'p/ humano':>11} {'erros':>8}")
     for r in curva:
         print(f"{r['limiar_confianca']:>8.2f} "
@@ -183,19 +194,19 @@ def main():
               f"{r['erros_que_passariam']:>8d}")
 
     print("\nDESEMPENHO POR CLASSE")
-    print(f"{'classe':>24} {'precisao':>9} {'recall':>8} {'f1':>8} {'n':>7}")
+    print(f"{'classe':>24} {'precisão':>9} {'recall':>8} {'f1':>8} {'n':>7}")
     for c, m in sorted(por_classe.items(), key=lambda kv: -kv[1]["f1-score"]):
         print(f"{c:>24} {m['precision']:>9.3f} {m['recall']:>8.3f} "
               f"{m['f1-score']:>8.3f} {int(m['support']):>7d}")
 
-    print("\nCONFUSOES MAIS FREQUENTES")
+    print("\nCONFUSÕES MAIS FREQUENTES")
     for r in confusoes[:6]:
         print(f"  {r['real']:>22} -> {r['previsto']:<22} "
               f"{r['n']:>4} ({r['pct_da_classe_real']}% da classe)")
 
     if frageis:
-        print(f"\nCLASSES FRAGEIS (recall < 70%): {', '.join(frageis)}")
-        print("  -> candidatas a NAO automatizar; ver item 2 do relatorio.")
+        print(f"\nCLASSES FRÁGEIS (recall < 70%): {', '.join(frageis)}")
+        print("  -> candidatas a NÃO automatizar; ver item 2 do relatório.")
 
     print("\n" + "=" * 78)
     print(f"Modelo salvo em: {SAIDA / 'modelo_triagem.joblib'}")

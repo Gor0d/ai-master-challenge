@@ -2,7 +2,7 @@
 
 Registro corrido das decisões, becos sem saída e correções de rota. Escrito **durante** o trabalho, não reconstruído no fim — é a matéria-prima do process log.
 
-**Status atual:** entrega completa — itens 1 a 4 do brief atendidos; revisada e reexecutada do zero na Etapa 16, pendente apenas o screen recording
+**Status atual:** entrega completa e pronta para o PR — itens 1 a 4 do brief atendidos, revisada e reexecutada do zero na Etapa 16, português do código corrigido na Etapa 17
 
 ---
 
@@ -288,6 +288,72 @@ ambiente limpo e conferindo cada número contra a saída que o gerou.
 
 ---
 
+### Etapa 17 — Reversão da convenção sem acento: português correto no código também
+
+Os relatórios e o README sempre estiveram em português correto. O código
+não: docstrings, comentários, mensagens de `print`, rótulos da interface do
+protótipo e campos de texto dos JSONs estavam sem acento. A Etapa 14
+registra isso como decisão deliberada — "por segurança de encoding em
+terminal" — e a decisão tinha uma razão real: o console do Windows usa
+cp1252 por padrão, e imprimir `acurácia` levanta `UnicodeEncodeError`.
+
+**O problema é que a razão era tratável e eu tratei o sintoma.** A solução
+correta não era escrever português errado; era reconfigurar a saída:
+
+```python
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+```
+
+Quatro linhas no topo de cada script, e o problema deixa de existir — sem
+depender de `PYTHONIOENCODING` nem de `-X utf8` na linha de comando.
+Verifiquei rodando os três scripts **sem** nenhuma flag: saída acentuada,
+zero erro.
+
+**O que foi acentuado, e o que deliberadamente não foi.** Identificadores
+de Python e chaves de JSON continuam sem acento, por dois motivos: é o
+padrão da linguagem, e as chaves são contrato entre os scripts e o
+protótipo (`curva_cobertura_x_acuracia` é lida pelo script 02 e pelo app —
+acentuar quebraria a leitura). Todo texto destinado a leitura humana foi
+corrigido: docstrings, comentários, `print`, rótulos da UI, campos de texto
+dos JSONs, e os rótulos dos dois diagramas SVG que são renderizados dentro
+do PDF ("ROTEAMENTO AUTOMÁTICO", "Categoria sensível?", "Confiança ≥ 0,80").
+A capa do PDF dizia "Diagnostico operacional, proposta de automacao" — na
+primeira página do documento entregue.
+
+**Um bug encontrado no caminho.** A formatação de moeda no protótipo usava
+`.replace(",", ".")` sobre a string inteira, o mesmo padrão que a Etapa 16
+já havia corrigido no script 02. Substituído por uma função `num_br()` que
+troca os dois separadores de uma vez, e que agora formata também os números
+da interface no padrão brasileiro: a acurácia aparece como `86,40%`, não
+`86.4%`, e o R² como `−0,0525`, com vírgula decimal e sinal de menos
+tipográfico — a mesma notação dos relatórios, para que o número conferido
+na tela seja reconhecível no documento.
+
+**O que ficou de fora:** `outputs/embeddings_zeroshot_metricas.json`. Os
+números dele são os atuais e conferem com o que os relatórios citam, mas os
+campos de texto descritivo continuam sem acento, porque regerar o arquivo
+exige reinstalar torch e transformers (~2,5 GB), baixar ~1,7 GB de modelos e
+esperar ~30 min de CPU. O script 04 já está acentuado — rodá-lo regenera o
+arquivo corrigido. A pendência está anotada no próprio cabeçalho do script,
+onde quem for reproduzir vai ler.
+
+**Revalidação:** os três scripts reexecutados, todos os números idênticos
+(86,40% de acurácia, R$ 63.471,98/ano, payback de 2,6 meses, R² de teste
+−0,0525). A aba de lote confere: 59,0% de cobertura a 99,2% de acurácia
+sobre 400 tickets reais, com o invariante `humano = sensível + confiança
+baixa` fechando. PDF reconstruído em 26 páginas, sem nenhuma palavra
+portuguesa sem acento — só nomes de arquivo, que continuam como devem ser.
+
+**Aprendizado:** convenção documentada não é convenção justificada. Eu
+tinha registrado a escolha no diário, o que a fez parecer decidida em vez de
+apenas conveniente. Escrever a razão ("segurança de encoding") sem testar se
+ela era contornável transformou uma limitação de ferramenta em regra de
+estilo — e regra de estilo herdada de limitação não questionada é como
+código fica errado por anos com aparência de intencional.
+
+---
+
 ## Gaps e riscos em aberto
 
 | # | Item | Natureza | Status |
@@ -313,6 +379,8 @@ Denunciar o dataset é a maior aposta desta submissão. Se o avaliador esperar o
 - **Detecção de duplicatas.** O brief cita como possibilidade. O DS2 tem zero duplicatas exatas, e sem ID de cliente ou timestamp não dá para detectar reaberturas — que é o caso que realmente importa.
 - **Respostas sugeridas.** Descartado por falta de base: o único campo de resolução disponível é texto gerado por Faker.
 
-## Evidência que depende do candidato
+## Decisão sobre a evidência visual
 
-Os 15 screenshots da sessão real foram capturados e indexados na Etapa 12 (`process-log/screenshots/`). **Falta apenas o screen recording do workflow** — é o único item desmarcado na lista de evidências do README. O git history, o código reproduzível, os screenshots e este diário já cobrem a narrativa; a gravação acrescenta a demonstração do protótipo em funcionamento.
+Os 15 screenshots da sessão real foram capturados e indexados na Etapa 12 (`process-log/screenshots/`). **O screen recording foi descartado por opção.** O guia de submissão lista os formatos de process log como alternativas combináveis, não como uma lista obrigatória, e esta entrega traz quatro: screenshots cronológicos, narrativa escrita (este diário), git history e código reproduzível de ponta a ponta. A gravação acrescentaria a demonstração do protótipo em movimento — que quem avalia obtém em dois comandos, com o modelo já versionado no repositório, sem precisar treinar nada.
+
+O raciocínio da escolha: vídeo é a evidência mais custosa de produzir e a mais custosa de consumir. Um avaliador com mais de cem pull requests na fila lê um diário e roda um `streamlit run` mais rápido do que assiste a quatro minutos de narração.

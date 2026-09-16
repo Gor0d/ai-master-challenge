@@ -135,7 +135,7 @@
         "diferenca_significativa": false
       }
     },
-    "leitura": "Nenhuma dimensao (canal, prioridade ou tipo) apresenta diferenca estatisticamente significativa de tempo de resolucao. O ranking acima existe, mas as diferencas estao dentro da flutuacao amostral: nao ha gargalo identificavel neste dataset. Priorizar o 'pior canal' seria agir sobre ruido."
+    "leitura": "Nenhuma dimensão (canal, prioridade ou tipo) apresenta diferença estatisticamente significativa de tempo de resolução. O ranking acima existe, mas as diferenças estão dentro da flutuação amostral: não há gargalo identificável neste dataset. Priorizar o 'pior canal' seria agir sobre ruído."
   },
   "b_o_que_impacta_satisfacao": {
     "r2_treino": 0.4447,
@@ -167,7 +167,7 @@
         "significativa": false
       }
     },
-    "leitura": "R2 de teste = -0.0525 (negativo ou zero): o modelo preve o CSAT PIOR do que simplesmente chutar a media. Nenhuma variavel operacional disponivel - canal, prioridade, tipo, tempo de resolucao, idade ou genero - tem poder preditivo sobre a satisfacao neste dataset. A resposta honesta a pergunta 'o que impacta satisfacao?' e: nada que esteja medido aqui. Ver laudo de auditoria."
+    "leitura": "R² de teste = −0,0525 (negativo ou zero): o modelo prevê o CSAT PIOR do que simplesmente chutar a média. Nenhuma variável operacional disponível — canal, prioridade, tipo, tempo de resolução, idade ou gênero — tem poder preditivo sobre a satisfação neste dataset. A resposta honesta à pergunta 'o que impacta satisfação?' é: nada que esteja medido aqui. Ver laudo de auditoria."
   },
   "c_quanto_desperdicamos": {
     "premissas": {
@@ -176,7 +176,7 @@
       "minutos_por_ticket_retrabalho": 12.0,
       "minutos_economia_sugestao_humano": 1.5,
       "jornada_horas_mes": 168,
-      "fonte_premissas": "Benchmarks de mercado para suporte N1 no Brasil. Devem ser substituidos pelos numeros reais da operacao antes de qualquer decisao de investimento."
+      "fonte_premissas": "Benchmarks de mercado para suporte N1 no Brasil. Devem ser substituídos pelos números reais da operação antes de qualquer decisão de investimento."
     },
     "volume_tickets": 8469,
     "horas_triagem_manual_ano": 564.6,
@@ -239,7 +239,7 @@
         "equivalente_fte": 0.71
       }
     },
-    "nota_metodologica": "Volume (fato) x tempo por tarefa (premissa) x cobertura MEDIDA do classificador do script 03. Nao usa os campos de tempo do Dataset 1, que falharam na auditoria. O ganho e liquido: desconta o retrabalho gerado pelos proprios erros do modelo. Inclui tambem o ganho parcial nos tickets NAO automatizados (chegam ao humano com categoria sugerida, nao do zero) - 1.5 min/ticket, uma fracao pequena e conservadora dos 4 min de triagem manual. Projecao para 30.000 tickets/ano usa fator 3.54."
+    "nota_metodologica": "Volume (fato) × tempo por tarefa (premissa) × cobertura MEDIDA do classificador do script 03. Não usa os campos de tempo do Dataset 1, que falharam na auditoria. O ganho é líquido: desconta o retrabalho gerado pelos próprios erros do modelo. Inclui também o ganho parcial nos tickets NÃO automatizados (chegam ao humano com categoria sugerida, não do zero) — 1.5 min/ticket, uma fração pequena e conservadora dos 4 min de triagem manual. A projeção para 30.000 tickets/ano usa o fator 3,54."
   },
   "d_sensibilidade_custo_hora": {
     "premissa_base_brl_hora": 45.0,
@@ -260,7 +260,7 @@
         "agressivo": 86994.31
       }
     },
-    "nota": "Escala linear: dobrar o custo/hora dobra a economia. Use o numero real da operacao, nao o benchmark, antes de decidir investimento."
+    "nota": "Escala linear: dobrar o custo/hora dobra a economia. Use o número real da operação, não o benchmark, antes de decidir investimento."
   },
   "e_custo_implantacao_e_payback": {
     "custos_estimados": {
@@ -268,9 +268,9 @@
       "integracao_e_deploy_brl": 12000.0,
       "retreino_mensal_recorrente_brl_mes": 600.0
     },
-    "nota_metodologica": "Estimativas de esforco de engenharia, nao orcamento medido. Ajustar ao custo real de TI/dados da operacao antes de aprovar.",
+    "nota_metodologica": "Estimativas de esforço de engenharia, não orçamento medido. Ajustar ao custo real de TI/dados da operação antes de aprovar.",
     "economia_liquida_mensal_apos_manutencao_brl": 4689.33,
     "payback_meses": 2.6,
-    "leitura": "Com integracao estimada em R$ 12.000 e manutencao de R$ 600/mes, o investimento se paga em ~2.6 meses no cenario recomendado. A fase de sombra (2-4 semanas) nao tem custo de integracao, porque valida a acuracia antes de qualquer investimento em deploy."
+    "leitura": "Com integração estimada em R$ 12.000 e manutenção de R$ 600/mês, o investimento se paga em ~2,6 meses no cenário recomendado. A fase de sombra (2 a 4 semanas) não tem custo de integração, porque valida a acurácia antes de qualquer investimento em deploy."
   }
 }

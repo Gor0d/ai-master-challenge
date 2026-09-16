@@ -1,26 +1,40 @@
 """
-04 - Embeddings e zero-shot classification (Dataset 2)
-=======================================================
-Resposta direta ao benchmark que o proprio brief cita como exemplo de
-resposta "especifica": classificar em 8 categorias usando embeddings e
+04 — Embeddings e zero-shot classification (Dataset 2)
+======================================================
+Resposta direta ao benchmark que o próprio brief cita como exemplo de
+resposta "específica": classificar em 8 categorias usando embeddings e
 zero-shot classification.
 
-Compara tres abordagens no MESMO split de teste do script 03
-(random_state=42, test_size=0.25, stratify=y), para que a comparacao
-seja justa - mesmos tickets de teste em todas:
+Compara três abordagens no MESMO split de teste do script 03
+(random_state=42, test_size=0.25, stratify=y), para que a comparação
+seja justa — mesmos tickets de teste em todas:
 
-  1. TF-IDF + LogisticRegression   (baseline ja reportado no script 03)
+  1. TF-IDF + LogisticRegression   (baseline já reportado no script 03)
   2. Embeddings (MiniLM) + LogisticRegression   (dataset de teste inteiro)
   3. Zero-shot local (BART-MNLI)   (amostra estratificada do teste, por
-     custo computacional: ~1,7s/ticket em CPU, 8 hipoteses por ticket)
+     custo computacional: ~1,7s/ticket em CPU, 8 hipóteses por ticket)
 
-Tudo roda local, sem API key e sem GPU. Reproducao completa, sem
-dependencia de servico externo.
+Tudo roda local, sem chave de API e sem GPU. Reprodução completa, sem
+dependência de serviço externo.
+
+Convenção: identificadores em Python e chaves de JSON seguem sem acento
+(as chaves são contrato entre os scripts); todo texto destinado a leitura
+humana é escrito em português correto.
+
+NOTA SOBRE A SAÍDA VERSIONADA: o arquivo
+outputs/embeddings_zeroshot_metricas.json que está no repositório foi
+gerado antes da revisão de acentuação. Os números dele são os atuais e
+conferem com o que os relatórios citam; os campos de texto descritivo
+("objetivo", "nota_metodologica", "custo") aparecem lá sem acento porque
+reproduzir o experimento custa ~2,5 GB de dependências, ~1,7 GB de modelos
+e ~30 min em CPU. Rodar este script novamente regenera o arquivo já com a
+acentuação correta.
 
 Uso:   python 04_embeddings_zeroshot.py
-Saida: outputs/embeddings_zeroshot_metricas.json
+Saída: outputs/embeddings_zeroshot_metricas.json
 """
 import json
+import sys
 import time
 from pathlib import Path
 
@@ -29,6 +43,11 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, classification_report
 from sklearn.model_selection import train_test_split
+
+# O relatório em stdout é acentuado e o console do Windows usa cp1252 por
+# padrão, o que levantaria UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 AQUI = Path(__file__).resolve()
 RAIZ_REPO = AQUI.parents[4]
@@ -47,14 +66,14 @@ def carregar():
 
 
 def split_identico_ao_script_03(d):
-    """Mesmo split do 03_classificador.py - garante comparacao justa."""
+    """Mesmo split do 03_classificador.py — garante comparação justa."""
     X, y = d["Document"], d["Topic_group"]
     return train_test_split(X, y, test_size=0.25, random_state=SEMENTE,
                             stratify=y)
 
 
 def carregar_tfidf_baseline():
-    """Le o resultado ja calculado pelo script 03, para nao duplicar treino."""
+    """Lê o resultado já calculado pelo script 03, para não duplicar treino."""
     arq = SAIDA / "classificador_metricas.json"
     if not arq.exists():
         return None
@@ -110,20 +129,20 @@ def avaliar_embeddings(X_tr, X_te, y_tr, y_te):
 def avaliar_zero_shot(X_te, y_te, classes):
     from transformers import pipeline
 
-    # amostra estratificada do TESTE (mesmos tickets que os outros dois
-    # metodos viram) - custo computacional impede rodar no teste inteiro
+    # Amostra estratificada do TESTE (mesmos tickets que os outros dois
+    # métodos viram) — o custo computacional impede rodar no teste inteiro.
     df_te = pd.DataFrame({"texto": X_te.values, "rotulo": y_te.values})
     por_classe = max(1, N_AMOSTRA_ZEROSHOT // len(classes))
-    # nao usar groupby().apply(): no pandas 3.x a coluna de agrupamento e
-    # excluida do grupo passado a func por padrao, derrubando 'rotulo' do
-    # resultado. Concatenacao manual evita a armadilha.
+    # Não usar groupby().apply(): no pandas 3.x a coluna de agrupamento é
+    # excluída do grupo passado à função por padrão, derrubando 'rotulo' do
+    # resultado. A concatenação manual evita a armadilha.
     amostra = pd.concat(
         [g.sample(n=min(len(g), por_classe), random_state=SEMENTE)
          for _, g in df_te.groupby("rotulo")],
         ignore_index=True,
     )
 
-    print(f"Carregando modelo zero-shot (facebook/bart-large-mnli)...")
+    print("Carregando modelo zero-shot (facebook/bart-large-mnli)...")
     t0 = time.time()
     clf = pipeline("zero-shot-classification", model="facebook/bart-large-mnli",
                    device=-1)
@@ -153,12 +172,12 @@ def avaliar_zero_shot(X_te, y_te, classes):
         "f1_macro": round(f1m, 4),
         "nota_metodologica": (
             f"Amostra estratificada de {len(amostra)} tickets do MESMO "
-            "conjunto de teste usado pelo TF-IDF e pelos embeddings - nao "
-            "e o teste inteiro (11.960 tickets) por custo computacional: "
-            "MNLI avalia 8 hipoteses de entailment por ticket em CPU, "
-            f"~{t_infer / len(amostra):.2f}s/ticket. Comparacao valida "
-            "estatisticamente, mas com intervalo de confianca maior que "
-            "os outros dois metodos."),
+            "conjunto de teste usado pelo TF-IDF e pelos embeddings — não "
+            "é o teste inteiro (11.960 tickets) por custo computacional: "
+            "o MNLI avalia 8 hipóteses de entailment por ticket em CPU, "
+            f"~{t_infer / len(amostra):.2f}s/ticket. Comparação válida "
+            "estatisticamente, mas com intervalo de confiança maior que "
+            "os outros dois métodos."),
     }
 
 
@@ -170,18 +189,18 @@ def main():
     tfidf = carregar_tfidf_baseline()
     if tfidf is None:
         print("AVISO: rode 03_classificador.py antes, para ter o baseline "
-              "TF-IDF para comparacao.")
+              "TF-IDF para comparação.")
 
     print("=" * 78)
-    print("EXPERIMENTO: EMBEDDINGS E ZERO-SHOT vs TF-IDF")
+    print("EXPERIMENTO: EMBEDDINGS E ZERO-SHOT vs. TF-IDF")
     print("=" * 78)
 
     resultado_emb = avaliar_embeddings(X_tr, X_te, y_tr, y_te)
-    print(f"\n[EMBEDDINGS] acuracia={resultado_emb['acuracia_pct']}% "
+    print(f"\n[EMBEDDINGS] acurácia={resultado_emb['acuracia_pct']}% "
           f"f1_macro={resultado_emb['f1_macro']}")
 
     resultado_zs = avaliar_zero_shot(X_te, y_te, classes)
-    print(f"\n[ZERO-SHOT]  acuracia={resultado_zs['acuracia_pct']}% "
+    print(f"\n[ZERO-SHOT]  acurácia={resultado_zs['acuracia_pct']}% "
           f"f1_macro={resultado_zs['f1_macro']} "
           f"(amostra n={resultado_zs['n_amostra']})")
 
@@ -190,25 +209,28 @@ def main():
             "acuracia_pct": tfidf["acuracia_pct"] if tfidf else None,
             "f1_macro": tfidf["f1_macro"] if tfidf else None,
             "n_teste": 11960,
-            "custo": "nenhum - CPU, sem download de modelo",
+            "custo": "nenhum — CPU, sem download de modelo",
         },
         "embeddings_minilm_logreg": {
             "acuracia_pct": resultado_emb["acuracia_pct"],
             "f1_macro": resultado_emb["f1_macro"],
             "n_teste": resultado_emb["n_teste"],
-            "custo": f"download ~80MB; {resultado_emb['tempo_encoding_s']}s de encoding em CPU",
+            "custo": (f"download ~80MB; {resultado_emb['tempo_encoding_s']}s "
+                      "de encoding em CPU"),
         },
         "zero_shot_bart_mnli": {
             "acuracia_pct": resultado_zs["acuracia_pct"],
             "f1_macro": resultado_zs["f1_macro"],
             "n_teste": resultado_zs["n_amostra"],
-            "custo": f"download ~1.6GB; {resultado_zs['tempo_medio_por_ticket_s']}s/ticket em CPU, sem treino",
+            "custo": (f"download ~1.6GB; "
+                      f"{resultado_zs['tempo_medio_por_ticket_s']}s/ticket "
+                      "em CPU, sem treino"),
         },
     }
 
     resultado = {
         "objetivo": ("Testar se embeddings e zero-shot superam o baseline "
-                     "TF-IDF + LogisticRegression ja reportado, no mesmo "
+                     "TF-IDF + LogisticRegression já reportado, no mesmo "
                      "split de teste."),
         "embeddings": resultado_emb,
         "zero_shot": resultado_zs,
@@ -220,9 +242,9 @@ def main():
                        encoding="utf-8")
 
     print("\n" + "=" * 78)
-    print("COMPARACAO FINAL (mesmo split de teste)")
+    print("COMPARAÇÃO FINAL (mesmo split de teste)")
     print("=" * 78)
-    print(f"{'Metodo':<28} {'Acuracia':>10} {'F1 macro':>10} {'N teste':>10}")
+    print(f"{'Método':<28} {'Acurácia':>10} {'F1 macro':>10} {'N teste':>10}")
     for nome, c in comparacao.items():
         acc = f"{c['acuracia_pct']:.2f}%" if c['acuracia_pct'] is not None else "N/A"
         f1 = f"{c['f1_macro']:.4f}" if c['f1_macro'] is not None else "N/A"

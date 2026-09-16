@@ -1,11 +1,11 @@
 """
-Gera o relatorio consolidado em PDF a partir dos markdowns da submissao.
+Gera o relatório consolidado em PDF a partir dos markdowns da submissão.
 
-Estrategia: markdown -> HTML com CSS de impressao -> PDF via Chromium
-headless (Edge, que ja vem no Windows). Nao depende de WeasyPrint/GTK.
+Estratégia: markdown -> HTML com CSS de impressão -> PDF via Chromium
+headless (Edge, que já vem no Windows). Não depende de WeasyPrint/GTK.
 
 Uso:  python build_pdf.py
-Saida: Relatorio_Redesign_Suporte_Emerson_Guimaraes.pdf (nesta pasta)
+Saída: Relatorio_Redesign_Suporte_Emerson_Guimaraes.pdf (nesta pasta)
 """
 import re
 import subprocess
@@ -32,16 +32,16 @@ def encontrar_edge():
     achou = shutil.which("msedge") or shutil.which("chrome")
     if achou:
         return achou
-    raise RuntimeError("Edge/Chrome nao encontrado. Instale um dos dois.")
+    raise RuntimeError("Edge/Chrome não encontrado. Instale um dos dois.")
 
 
 def md_para_html(caminho, ajuste_titulos=0):
-    """Converte um arquivo markdown, promovendo o nivel dos titulos se
-    ajuste_titulos>0 (para encaixar dentro da hierarquia do documento maior).
+    """Converte um arquivo markdown, promovendo o nível dos títulos se
+    ajuste_titulos>0 (para encaixar na hierarquia do documento maior).
     """
     texto = caminho.read_text(encoding="utf-8")
-    # remove o titulo H1 de cada doc-fonte: o titulo de secao e inserido
-    # manualmente no template com numeracao propria
+    # Remove o título H1 de cada documento-fonte: o título de seção é
+    # inserido manualmente no template, com numeração própria.
     texto = re.sub(r"^#\s+.+\n", "", texto, count=1)
     if ajuste_titulos:
         def rebaixar(m):
@@ -71,7 +71,7 @@ DIAGRAMA_ARQUITETURA = """
 
   <rect x="10" y="30" width="150" height="70" class="caixa"/>
   <text x="85" y="55" text-anchor="middle" class="titulo">Dataset 1</text>
-  <text x="85" y="72" text-anchor="middle" class="sub">tickets + metricas</text>
+  <text x="85" y="72" text-anchor="middle" class="sub">tickets + métricas</text>
   <text x="85" y="87" text-anchor="middle" class="sub">8.469 registros</text>
 
   <rect x="10" y="150" width="150" height="70" class="caixa"/>
@@ -87,10 +87,10 @@ DIAGRAMA_ARQUITETURA = """
   <rect x="220" y="150" width="170" height="70" class="caixa-ok"/>
   <text x="305" y="172" text-anchor="middle" class="titulo">03 · Classificador</text>
   <text x="305" y="189" text-anchor="middle" class="sub">TF-IDF + LogReg</text>
-  <text x="305" y="204" text-anchor="middle" class="sub">86,4% acuracia</text>
+  <text x="305" y="204" text-anchor="middle" class="sub">86,4% de acurácia</text>
 
   <rect x="460" y="90" width="180" height="70" class="caixa"/>
-  <text x="550" y="112" text-anchor="middle" class="titulo">02 · Diagnostico</text>
+  <text x="550" y="112" text-anchor="middle" class="titulo">02 · Diagnóstico</text>
   <text x="550" y="129" text-anchor="middle" class="sub">gargalos, CSAT, ROI</text>
   <text x="550" y="144" text-anchor="middle" class="sub">cobertura medida cruzada</text>
 
@@ -100,8 +100,8 @@ DIAGRAMA_ARQUITETURA = """
   <text x="800" y="74" text-anchor="middle" class="sub">triagem + lote + ROI</text>
 
   <rect x="710" y="160" width="180" height="70" class="caixa"/>
-  <text x="800" y="182" text-anchor="middle" class="titulo">Relatorios</text>
-  <text x="800" y="199" text-anchor="middle" class="sub">diagnostico, proposta,</text>
+  <text x="800" y="182" text-anchor="middle" class="titulo">Relatórios</text>
+  <text x="800" y="199" text-anchor="middle" class="sub">diagnóstico, proposta,</text>
   <text x="800" y="214" text-anchor="middle" class="sub">anexo de auditoria</text>
 
   <path class="liga" d="M160,65 L220,65"/>
@@ -110,7 +110,7 @@ DIAGRAMA_ARQUITETURA = """
   <path class="liga" d="M390,185 L470,185 L470,150"/>
   <path class="liga" d="M640,110 L700,70 L710,55"/>
   <path class="liga" d="M640,140 L700,180 L710,195"/>
-  <text x="425" y="55" class="rot">so o real</text>
+  <text x="425" y="55" class="rot">só o real</text>
   <text x="425" y="200" class="rot">cobertura medida</text>
 </svg>
 """
@@ -139,36 +139,36 @@ DIAGRAMA_FLUXO = """
 
   <rect x="270" y="100" width="220" height="55" rx="8" class="n1"/>
   <text x="380" y="123" text-anchor="middle" class="tit">Classificador</text>
-  <text x="380" y="139" text-anchor="middle" class="sub2">categoria + confianca 0-1</text>
+  <text x="380" y="139" text-anchor="middle" class="sub2">categoria + confiança 0-1</text>
 
   <path class="lig" d="M380,65 L380,100"/>
 
   <rect x="250" y="190" width="260" height="55" rx="8" class="n2"/>
-  <text x="380" y="213" text-anchor="middle" class="tit">Categoria sensivel?</text>
+  <text x="380" y="213" text-anchor="middle" class="tit">Categoria sensível?</text>
   <text x="380" y="229" text-anchor="middle" class="sub2">Administrative rights · Purchase</text>
 
   <path class="lig" d="M380,155 L380,190"/>
 
   <rect x="30" y="280" width="240" height="70" rx="8" class="n3"/>
   <text x="150" y="303" text-anchor="middle" class="tit">FILA HUMANA</text>
-  <text x="150" y="319" text-anchor="middle" class="sub2">com sugestao + termos</text>
-  <text x="150" y="334" text-anchor="middle" class="sub2">que pesaram na decisao</text>
+  <text x="150" y="319" text-anchor="middle" class="sub2">com sugestão + termos</text>
+  <text x="150" y="334" text-anchor="middle" class="sub2">que pesaram na decisão</text>
 
   <rect x="500" y="280" width="220" height="55" rx="8" class="n2"/>
-  <text x="610" y="303" text-anchor="middle" class="tit">Confianca >= 0,80 ?</text>
+  <text x="610" y="303" text-anchor="middle" class="tit">Confiança ≥ 0,80 ?</text>
   <text x="610" y="319" text-anchor="middle" class="sub2">limiar calibrado</text>
 
   <path class="lig" d="M250,217 L150,217 L150,280"/>
-  <text x="175" y="255" class="lbl">sim (sensivel)</text>
+  <text x="175" y="255" class="lbl">sim (sensível)</text>
 
   <path class="lig" d="M510,217 L610,217 L610,280"/>
-  <text x="530" y="255" class="lbl">nao</text>
+  <text x="530" y="255" class="lbl">não</text>
 
   <path class="lig" d="M500,307 L270,307"/>
-  <text x="380" y="298" class="lbl">nao (confianca baixa)</text>
+  <text x="380" y="298" class="lbl">não (confiança baixa)</text>
 
   <rect x="530" y="365" width="200" height="55" rx="8" class="n4"/>
-  <text x="630" y="388" text-anchor="middle" class="tit">ROTEAMENTO AUTOMATICO</text>
+  <text x="630" y="388" text-anchor="middle" class="tit">ROTEAMENTO AUTOMÁTICO</text>
   <text x="630" y="404" text-anchor="middle" class="sub2">97,48% de acerto medido</text>
 
   <path class="lig" d="M660,335 L660,365"/>
@@ -186,7 +186,7 @@ def montar_capa():
   </div>
   <div class="capa-centro">
     <h1 class="capa-titulo">Redesign de Suporte<br>com IA</h1>
-    <p class="capa-sub">Diagnostico operacional, proposta de automacao<br>
+    <p class="capa-sub">Diagnóstico operacional, proposta de automação<br>
     e protótipo funcional de triagem</p>
   </div>
   <div class="capa-rodape">
@@ -204,7 +204,7 @@ def montar_capa():
 def montar_sumario_executivo():
     return """
 <section class="pagina">
-  <h1><span class="num">1</span> Sumário Executivo</h1>
+  <h1 class="pos-sumario"><span class="num">1</span> Sumário Executivo</h1>
   <div class="callout callout-chave">
     <p>Auditei os dois datasets antes de analisar qualquer coisa, e descobri
     que o <strong>Dataset 1 foi inteiramente gerado por biblioteca de dados
@@ -284,7 +284,7 @@ def montar_sumario(indice):
         for n, t in indice
     )
     return f"""
-<section class="pagina sumario">
+<section class="sumario">
   <h1>Sumário</h1>
   <ol class="toc">{linhas}</ol>
 </section>
@@ -297,41 +297,43 @@ TEMPLATE = """<!DOCTYPE html>
 <meta charset="utf-8">
 <title>Redesign de Suporte com IA — Emerson Guimarães</title>
 <style>
-  @page {{ size: A4; margin: 20mm 18mm 22mm 18mm;
+  @page {{ size: A4; margin: 15mm 15mm 16mm 15mm;
     @bottom-center {{ content: "Challenge 002 — Redesign de Suporte  ·  página " counter(page);
       font-family: 'Segoe UI', sans-serif; font-size: 9px; color: #a0aec0; }} }}
   @page capa {{ size: A4; margin: 0; }}
   * {{ box-sizing: border-box; }}
   body {{ font-family: 'Segoe UI', 'Calibri', sans-serif; color:#1a202c;
-    font-size: 11.5px; line-height: 1.55; }}
+    font-size: 11.5px; line-height: 1.48; }}
   h1 {{ font-size: 20px; color:#1a202c; border-bottom: 3px solid #2b6cb0;
     padding-bottom: 6px; margin-top: 0; }}
   h1 .num {{ color:#2b6cb0; margin-right: 6px; }}
-  h2 {{ font-size: 15px; color:#2d3748; margin-top: 22px;
-    border-left: 4px solid #2b6cb0; padding-left: 8px; }}
-  h3 {{ font-size: 13px; color:#2d3748; margin-top: 16px; }}
+  h2 {{ font-size: 15px; color:#2d3748; margin-top: 15px;
+    margin-bottom: 7px; border-left: 4px solid #2b6cb0; padding-left: 8px; }}
+  h3 {{ font-size: 13px; color:#2d3748; margin-top: 11px;
+    margin-bottom: 5px; }}
   h4 {{ font-size: 12px; color:#4a5568; }}
-  p {{ margin: 8px 0; text-align: justify; }}
+  p {{ margin: 6px 0; text-align: justify; }}
   code {{ background:#edf2f7; padding: 1px 5px; border-radius: 3px;
     font-family: 'Consolas', monospace; font-size: 10.5px; color:#c53030; }}
   pre {{ background:#1a202c; color:#e2e8f0; padding: 12px; border-radius: 6px;
     font-size: 10px; overflow-x: auto; white-space: pre-wrap; }}
   pre code {{ background: none; color: inherit; padding: 0; }}
-  blockquote {{ border-left: 4px solid #cbd5e0; margin: 10px 0; padding: 4px 14px;
+  blockquote {{ border-left: 4px solid #cbd5e0; margin: 8px 0; padding: 3px 13px;
     color:#4a5568; background:#f7fafc; font-style: italic; }}
-  table {{ border-collapse: collapse; width: 100%; margin: 10px 0 16px 0;
+  table {{ border-collapse: collapse; width: 100%; margin: 8px 0 11px 0;
     font-size: 10.5px; }}
-  th, td {{ border: 1px solid #e2e8f0; padding: 5px 8px; text-align: left; }}
+  th, td {{ border: 1px solid #e2e8f0; padding: 4px 7px; text-align: left; }}
   th {{ background:#2b6cb0; color:white; font-weight:600; }}
   tr:nth-child(even) td {{ background:#f7fafc; }}
   strong {{ color:#1a202c; }}
   a {{ color:#2b6cb0; text-decoration:none; }}
   ul, ol {{ padding-left: 22px; }}
-  li {{ margin: 3px 0; }}
+  li {{ margin: 2px 0; }}
   .pagina {{ page-break-after: always; }}
+  h1.pos-sumario {{ margin-top: 26px; }}
   .pagina:last-child {{ page-break-after: auto; }}
 
-  /* capa: pagina nomeada sem margem, para sangramento total */
+  /* capa: usa a @page nomeada "capa", sem margem, para sangramento total */
   .capa {{ page: capa; box-sizing:border-box; width:210mm; height:297mm;
     display:flex; flex-direction:column; justify-content:space-between;
     background: linear-gradient(160deg,#1a365d 0%,#2b6cb0 100%);
@@ -430,13 +432,13 @@ def main():
         "--virtual-time-budget=15000",
         HTML_SAIDA.as_uri(),
     ]
-    print("Renderizando PDF via Edge headless...")
+    print("Renderizando o PDF via Edge headless...")
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=90)
     if PDF_SAIDA.exists():
         tam = PDF_SAIDA.stat().st_size / 1024
         print(f"PDF gerado: {PDF_SAIDA} ({tam:.0f} KB)")
     else:
-        print("FALHA ao gerar PDF.")
+        print("FALHA ao gerar o PDF.")
         print(r.stdout[-2000:], r.stderr[-2000:])
 
 

@@ -8,6 +8,7 @@ O relato completo está em dois lugares, ambos escritos **durante** o trabalho:
 | **Process log estruturado** | [`README.md`](../README.md#process-log--como-usei-ia) | Ferramentas, workflow, onde a IA errou, o que acrescentei |
 | **Screenshots cronológicos** | [`screenshots/`](screenshots/) | 15 capturas da sessão real com o Claude Code, do clone do repositório ao checklist final |
 | **Resumo visual** | [Case File 002](https://claude.ai/artifact/UEutxhGMDpEbQpWEB8xVBZ) | Página com a linha do tempo dos 9 marcos da sessão — complementa, não substitui, o diário e os screenshots |
+| **Protótipo executável** | [`../solution/app/app.py`](../solution/app/app.py) | Substitui o screen recording: o modelo treinado vem versionado, então são dois comandos para ver a triagem rodando sobre dados reais |
 | **Git history** | `git log --oneline` nesta branch | Evolução do raciocínio nas mensagens de commit |
 | **Código reproduzível** | [`../solution/scripts/`](../solution/scripts/) | Todo número da submissão sai daqui, executável de ponta a ponta |
 | **Saídas brutas** | [`../solution/outputs/`](../solution/outputs/) | JSONs com estatísticas e p-valores, para conferência independente |

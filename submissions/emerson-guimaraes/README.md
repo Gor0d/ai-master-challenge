@@ -34,7 +34,7 @@ Ataquei o problema em quatro movimentos, nesta ordem deliberada:
 
 **Relatório consolidado em PDF** (capa, sumário, arquitetura e fluxo de decisão em diagrama):
 [`solution/relatorio/Relatorio_Redesign_Suporte_Emerson_Guimaraes.pdf`](solution/relatorio/Relatorio_Redesign_Suporte_Emerson_Guimaraes.pdf)
-— reune os três documentos e o diário em 26 páginas. Regenerável com
+— reune os três documentos e o diário em 22 páginas. Regenerável com
 `python solution/relatorio/build_pdf.py` (usa Edge/Chrome headless, sem dependências pesadas).
 
 **Documentos-fonte, na ordem de leitura:**
@@ -157,7 +157,9 @@ Aproximadamente 20 ciclos de trabalho, distribuídos em 12 commits temáticos. A
 - [x] **Reprodução em ambiente limpo** — pipeline reexecutado do zero em outra máquina/versão (Python 3.14, scikit-learn 1.9.1): `auditoria_resultados.json` e `classificador_metricas.json` saíram **byte a byte idênticos** aos commitados. Registro na [Etapa 16 do diário](docs/DIARIO_DE_BORDO.md)
 - [x] **Screenshots das conversas com IA** — 15 capturas cronológicas em [`process-log/screenshots/`](process-log/screenshots/), do clone do repositório ao checklist final. Duas delas tiveram um token de API redigido antes da publicação (ver nota no índice do process log)
 - [x] **Resumo visual do processo** — [Case File 002](https://claude.ai/artifact/UEutxhGMDpEbQpWEB8xVBZ), uma página com a linha do tempo dos 9 marcos reais da sessão, incluindo a retratação e o teste de embeddings/zero-shot. Complementa o diário e os screenshots — não os substitui
-- [ ] Screen recording do workflow
+- [x] **Protótipo executável** — o modelo treinado vem versionado, então são dois comandos para ver a triagem rodando sobre dados reais
+
+_Sem screen recording, por opção. O guia de submissão lista os formatos de process log como alternativas combináveis, não como uma lista obrigatória — esta entrega traz quatro: screenshots cronológicos, narrativa escrita, git history e código reproduzível. A gravação acrescentaria ver o protótipo em movimento, que o avaliador obtém em dois comandos._
 
 ---
 

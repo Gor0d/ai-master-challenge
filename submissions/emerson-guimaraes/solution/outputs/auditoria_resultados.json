@@ -3,12 +3,12 @@
     "arquivo": "customer_support_tickets.csv",
     "testes": [
       {
-        "nome": "Placeholders nao substituidos no texto",
+        "nome": "Placeholders não substituídos no texto",
         "pct_descricoes_com_placeholder": 100.0,
         "n_descricoes": 8469,
         "templates_unicos_apos_normalizar": 8077,
         "esperado_se_real": "0% de placeholders",
-        "veredito": "SINTETICO"
+        "veredito": "SINTÉTICO"
       },
       {
         "nome": "Janela temporal de todos os timestamps",
@@ -17,19 +17,19 @@
         "amplitude_horas": 27.03,
         "n_tickets": 8469,
         "esperado_se_real": "meses ou anos de amplitude",
-        "veredito": "SINTETICO"
+        "veredito": "SINTÉTICO"
       },
       {
-        "nome": "Resolucao anterior a primeira resposta (impossivel)",
+        "nome": "Resolução anterior à primeira resposta (impossível)",
         "n_pares_validos": 2769,
         "n_negativos": 1365,
         "pct_negativos": 49.3,
         "delta_medio_horas": -0.0577,
-        "esperado_se_real": "0% negativos e delta medio positivo",
-        "veredito": "SINTETICO"
+        "esperado_se_real": "0% negativos e delta médio positivo",
+        "veredito": "SINTÉTICO"
       },
       {
-        "nome": "Uniformidade da distribuicao de CSAT",
+        "nome": "Uniformidade da distribuição de CSAT",
         "contagem_por_nota": {
           "1.0": 553,
           "2.0": 549,
@@ -39,12 +39,12 @@
         },
         "chi2_vs_uniforme": 1.6663,
         "p_valor": 0.7968,
-        "interpretacao": "p alto = indistinguivel de sorteio uniforme",
-        "esperado_se_real": "p < 0.05 (distribuicao enviesada)",
-        "veredito": "SINTETICO"
+        "interpretacao": "p alto = indistinguível de sorteio uniforme",
+        "esperado_se_real": "p < 0,05 (distribuição enviesada)",
+        "veredito": "SINTÉTICO"
       },
       {
-        "nome": "Ausencia de sinal entre variaveis operacionais e CSAT",
+        "nome": "Ausência de sinal entre variáveis operacionais e CSAT",
         "pearson_csat_x_tempo_resolucao": {
           "r": 0.0199,
           "p": 0.2958,
@@ -75,22 +75,22 @@
           "Social media": 2.9693
         },
         "amplitude_csat_medio": 0.1308,
-        "esperado_se_real": "ao menos uma associacao significativa (p < 0.05)",
-        "veredito": "SINTETICO"
+        "esperado_se_real": "ao menos uma associação significativa (p < 0,05)",
+        "veredito": "SINTÉTICO"
       },
       {
-        "nome": "Dominios de e-mail reservados (assinatura do Faker)",
+        "nome": "Domínios de e-mail reservados (assinatura do Faker)",
         "distribuicao_dominios": {
           "example.com": 2904,
           "example.org": 2796,
           "example.net": 2769
         },
         "pct_dominios_reservados_rfc2606": 100.0,
-        "esperado_se_real": "dominios variados de provedores reais",
-        "veredito": "SINTETICO"
+        "esperado_se_real": "domínios variados de provedores reais",
+        "veredito": "SINTÉTICO"
       },
       {
-        "nome": "Vocabulario do campo Resolution",
+        "nome": "Vocabulário do campo Resolution",
         "n_resolucoes": 2769,
         "palavras_unicas": 971,
         "top_10_palavras": {
@@ -128,11 +128,11 @@
           "Try capital clearly never color toward story.",
           "West decision evidence bit."
         ],
-        "esperado_se_real": "vocabulario dominado por termos de atendimento",
-        "veredito": "SINTETICO"
+        "esperado_se_real": "vocabulário dominado por termos de atendimento",
+        "veredito": "SINTÉTICO"
       },
       {
-        "nome": "Uniformidade de TODAS as categoricas (chi2 vs uniforme)",
+        "nome": "Uniformidade de TODAS as categóricas (chi2 vs. uniforme)",
         "alfa_bonferroni": 0.00833,
         "resultados": {
           "Ticket Channel": {
@@ -174,12 +174,12 @@
         },
         "n_colunas_uniformes": 6,
         "n_colunas_testadas": 6,
-        "implicacao": "Categoricas uniformes = nem a composicao de volume por canal/tipo/produto carrega informacao. O dataset nao sustenta sequer analise descritiva de mix.",
+        "implicacao": "Categóricas uniformes = nem a composição de volume por canal/tipo/produto carrega informação. O dataset não sustenta sequer análise descritiva de mix.",
         "esperado_se_real": "mix desbalanceado (lei de Pareto no suporte)",
-        "veredito": "SINTETICO"
+        "veredito": "SINTÉTICO"
       },
       {
-        "nome": "Completude e composicao do backlog",
+        "nome": "Completude e composição do backlog",
         "n_registros": 8469,
         "n_registros_prometido_no_brief": 30000,
         "divergencia_vs_brief": 21531,
@@ -191,12 +191,12 @@
         },
         "tickets_fechados": 2769,
         "pct_nunca_fechados": 67.3,
-        "observacao": "Resolution, Time to Resolution e CSAT tem exatamente o mesmo numero de nulos: so existem para tickets Closed. ATENCAO: como Ticket Status tambem e uniforme (teste 8), os 67,3% 'nunca fechados' NAO representam um backlog real - e 1/3 por status atribuido aleatoriamente.",
+        "observacao": "Resolution, Time to Resolution e CSAT têm exatamente o mesmo número de nulos: só existem para tickets Closed. ATENÇÃO: como Ticket Status também é uniforme (teste 8), os 67,3% 'nunca fechados' NÃO representam um backlog real — é 1/3 por status atribuído aleatoriamente.",
         "veredito": "CONTEXTO"
       }
     ],
     "n_testes_condenatorios": 8,
-    "conclusao": "Dataset integralmente gerado por biblioteca de dados falsos (assinatura Faker confirmada). Nao apenas as metricas: TODAS as categoricas sao uniformes, entao nem a composicao de volume por canal/tipo/produto carrega informacao. Nenhum KPI operacional pode ser derivado deste arquivo."
+    "conclusao": "Dataset integralmente gerado por biblioteca de dados falsos (assinatura do Faker confirmada). Não apenas as métricas: TODAS as categóricas são uniformes, então nem a composição de volume por canal/tipo/produto carrega informação. Nenhum KPI operacional pode ser derivado deste arquivo."
   },
   "dataset_2": {
     "nome": "Perfil de qualidade do Dataset 2",
@@ -223,6 +223,6 @@
       "p75": 46.0,
       "max": 981
     },
-    "veredito": "REAL_UTILIZAVEL"
+    "veredito": "REAL_UTILIZÁVEL"
   }
 }
